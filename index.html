@@ -3,139 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Saumur Quest - Phase 1</title>
+    <title>Saumur Quest Engine</title>
     <style>
-        :root { --gold: #fbc02d; --bg: #0a0a0a; --green: #1b5e20; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; }
+        :root { --gold: #fbc02d; --bg: #0a0a0a; --blue: #00d4ff; --green: #00ff41; --orange: #ff8c00; --red: #ff0000; }
+        
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
 
-        /* DASHBOARD SUPÉRIEUR */
+        /* HALO DE NAVIGATION (Bords de l'écran) */
+        #nav-halo {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            border: 0px solid transparent; transition: border-width 0.3s, border-color 0.5s;
+            pointer-events: none; z-index: 5000;
+        }
+
+        /* BOUTON PROFIL PERSISTANT */
+        #profile-btn {
+            position: fixed; top: 15px; right: 15px; width: 50px; height: 50px;
+            background: rgba(40, 40, 40, 0.9); border: 2px solid var(--gold);
+            border-radius: 50%; z-index: 9000; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* DASHBOARD CACHÉ */
         #dashboard {
-            position: fixed; top: 0; width: 100%; height: 70px;
-            background: #111; border-bottom: 2px solid var(--gold);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            position: fixed; top: 0; right: -100%; width: 250px; height: 100vh;
+            background: rgba(15, 15, 15, 0.98); border-left: 2px solid var(--gold);
+            z-index: 8500; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 80px 20px 20px; box-sizing: border-box;
         }
-        .stat { text-align: center; }
-        .stat-val { color: var(--gold); font-weight: bold; display: block; font-size: 1.1rem; }
-        .stat-label { font-size: 0.7rem; text-transform: uppercase; color: #888; }
+        #dashboard.open { right: 0; }
+        .stat-item { margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+        .stat-val { font-size: 1.4rem; color: var(--gold); font-weight: bold; display: block; }
 
-        /* ÉCRAN DE VERROUILLAGE GPS */
-        #geo-lock {
-            position: fixed; top: 70px; left: 0; width: 100%; height: calc(100vh - 70px);
-            background: var(--bg); z-index: 999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; padding: 20px; box-sizing: border-box;
-        }
-        .radar {
-            width: 100px; height: 100px; border: 2px solid var(--gold);
-            border-radius: 50%; margin-bottom: 20px; position: relative;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(251, 192, 45, 0.4); } 70% { box-shadow: 0 0 0 30px rgba(251, 192, 45, 0); } 100% { box-shadow: 0 0 0 0 rgba(251, 192, 45, 0); } }
+        /* ÉCRANS DE JEU */
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: center; align-items: center; justify-content: center; flex-direction: column; padding: 20px; box-sizing: border-box; text-align: center; }
+        #setup-screen { z-index: 10000; background: var(--bg); }
+        #nav-screen { z-index: 4000; }
+        #game-screen { z-index: 6000; background: var(--bg); display: none; }
 
-        /* TA GRILLE (Masquée au début) */
-        #game-content { opacity: 0.1; pointer-events: none; filter: blur(10px); transition: all 1s; padding-top: 100px; }
-        #game-content.unlocked { opacity: 1; pointer-events: auto; filter: blur(0); }
-
-        .btn-gps { background: var(--gold); color: black; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; margin-top: 20px; }
+        .btn { background: var(--gold); color: black; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        input[type="text"] { background: #222; border: 1px solid var(--gold); color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 20px; width: 80%; }
+        
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .blinking { animation: blink 1s infinite; }
     </style>
 </head>
 <body>
 
+    <div id="nav-halo"></div>
+
+    <div id="profile-btn" onclick="toggleDashboard()">👤</div>
+
     <div id="dashboard">
-        <div class="stat">
-            <span class="stat-val" id="timer">00:00</span>
-            <span class="stat-label">Temps</span>
-        </div>
-        <div class="stat">
-            <span class="stat-val" id="distance">---</span>
-            <span class="stat-label">Distance</span>
-        </div>
-        <div class="stat">
-            <span class="stat-val">1/3</span>
-            <span class="stat-label">Étape</span>
+        <div class="stat-item"><span class="stat-label">Joueur</span><span class="stat-val" id="dash-name">---</span></div>
+        <div class="stat-item"><span class="stat-label">Chrono Marche</span><span class="stat-val" id="dash-chrono">00:00</span></div>
+        <div class="stat-item"><span class="stat-label">Score Total</span><span class="stat-val" id="dash-score">0</span></div>
+        <div class="stat-item"><span class="stat-label">Étape Actuelle</span><span class="stat-val" id="dash-step">1 / 9</span></div>
+    </div>
+
+    <div id="setup-screen" class="screen">
+        <h1 style="color: var(--gold)">BIENVENUE</h1>
+        <p>Entrez votre nom pour commencer l'aventure</p>
+        <input type="text" id="player-name" placeholder="Votre Pseudo...">
+        <button class="btn" onclick="startGame()">DÉMARRER</button>
+    </div>
+
+    <div id="nav-screen" class="screen">
+        <h2 id="nav-msg">Initialisation GPS...</h2>
+        <div id="radar-dist" style="font-size: 3rem; font-weight: 900; margin: 20px 0;">---</div>
+        <div id="zone-action-btn" style="display:none;">
+            <button class="btn" onclick="launchGame()">LANCER LE JEU</button>
         </div>
     </div>
 
-    <div id="geo-lock">
-        <div class="radar"></div>
-        <h2 id="lock-msg">ZONE VERROUILLÉE</h2>
-        <p>Vous devez être à moins de 30m du <b>Point de Départ</b> pour débloquer l'énigme.</p>
-        <button class="btn-gps" onclick="startTracking()">ACTIVER MON RADAR</button>
-    </div>
-
-    <div id="game-content">
-        <h1 style="text-align: center; color: var(--gold);">GRILLE DÉBLOQUÉE !</h1>
-        <p style="text-align: center;">(Insère ton code de grille ici)</p>
+    <div id="game-screen" class="screen">
+        <div id="game-content"></div>
     </div>
 
 <script>
-    // CONFIGURATION DU LIEU (Ex: Mairie de Saumur)
-    const TARGET_LAT = 47.2592; 
-    const TARGET_LON = -0.0731;
-    const UNLOCK_DISTANCE = 30; // mètres
+    // --- VARIABLES GLOBALES ---
+    let playerName = "";
+    let currentStep = 0;
+    let score = 0;
+    let marchTimer = 0;
+    let timerActive = false;
+    let intervalChrono;
+    let isAtCenter = false; // Zone Bleue
 
-    let startTime = Date.now();
-    
-    // Timer Dashboard
-    setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
-        const secs = (elapsed % 60).toString().padStart(2, '0');
-        document.getElementById('timer').innerText = `${mins}:${secs}`;
-    }, 1000);
+    // --- COORDONNÉES GPS (À remplir plus tard) ---
+    const GPS = [
+        { lat: 47.2592, lon: -0.0731, name: "GPS1" },
+        { lat: 47.2600, lon: -0.0750, name: "GPS2" }
+        // ... jusqu'à GPS9
+    ];
 
-    function startTracking() {
-        if (!navigator.geolocation) {
-            alert("Le GPS n'est pas supporté par votre navigateur.");
-            return;
+    // --- LOGIQUE DASHBOARD ---
+    function toggleDashboard() {
+        document.getElementById('dashboard').classList.toggle('open');
+    }
+
+    // --- DÉMARRAGE ---
+    function startGame() {
+        playerName = document.getElementById('player-name').value || "Explorateur";
+        document.getElementById('dash-name').innerText = playerName;
+        document.getElementById('setup-screen').style.display = 'none';
+        initGPS();
+    }
+
+    // --- GESTION DU CHRONO DE MARCHE ---
+    function updateChrono() {
+        if (timerActive) {
+            marchTimer++;
+            const m = Math.floor(marchTimer / 60).toString().padStart(2, '0');
+            const s = (marchTimer % 60).toString().padStart(2, '0');
+            document.getElementById('dash-chrono').innerText = `${m}:${s}`;
         }
+    }
 
-        navigator.geolocation.watchPosition(updatePosition, handleError, {
-            enableHighAccuracy: true,
-            maximumAge: 1000
-        });
+    // --- GESTION GPS & HALO ---
+    function initGPS() {
+        navigator.geolocation.watchPosition(updatePosition, null, { enableHighAccuracy: true });
+        intervalChrono = setInterval(updateChrono, 1000);
     }
 
     function updatePosition(pos) {
-        const lat = pos.coords.latitude;
-        const lon = pos.coords.longitude;
-        const dist = calculateDistance(lat, lon, TARGET_LAT, TARGET_LON);
+        const pLat = pos.coords.latitude;
+        const pLon = pos.coords.longitude;
+        const target = GPS[currentStep];
+        const dist = calculateDistance(pLat, pLon, target.lat, target.lon);
 
-        document.getElementById('distance').innerText = Math.round(dist) + "m";
+        document.getElementById('radar-dist').innerText = Math.round(dist) + "m";
+        updateHalo(dist);
+    }
 
-        if (dist <= UNLOCK_DISTANCE) {
-            unlockGame();
-        } else {
-            document.getElementById('lock-msg').innerText = "EN APPROCHE...";
+    function updateHalo(dist) {
+        const halo = document.getElementById('nav-halo');
+        const actionBtn = document.getElementById('zone-action-btn');
+        const navMsg = document.getElementById('nav-msg');
+
+        halo.style.borderWidth = "15px";
+        actionBtn.style.display = 'none';
+        isAtCenter = false;
+
+        if (dist > 100) { // LOIN
+            halo.style.borderColor = "var(--red)";
+            halo.classList.remove('blinking');
+            navMsg.innerText = "Trop loin...";
+            timerActive = true; 
+        } 
+        else if (dist > 30) { // PROCHE
+            halo.style.borderColor = "var(--orange)";
+            halo.classList.add('blinking');
+            navMsg.innerText = "Vous chauffez !";
+            timerActive = true;
+        } 
+        else if (dist > 10) { // ZONE VERTE (JEU DISPONIBLE)
+            halo.style.borderColor = "var(--green)";
+            halo.classList.remove('blinking');
+            navMsg.innerText = " ZONE ATTEINTE !";
+            actionBtn.style.display = 'block';
+            timerActive = false; // LE CHRONO S'ARRÊTE
+        } 
+        else { // ZONE BLEUE (CENTRE)
+            halo.style.borderColor = "var(--blue)";
+            navMsg.innerText = " POSITION PARFAITE !";
+            actionBtn.style.display = 'block';
+            timerActive = false;
+            isAtCenter = true; // Crucial pour l'étape 9
         }
     }
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3; // Rayon de la terre en mètres
-        const φ1 = lat1 * Math.PI/180;
-        const φ2 = lat2 * Math.PI/180;
-        const Δφ = (lat2-lat1) * Math.PI/180;
-        const Δλ = (lon2-lon1) * Math.PI/180;
-
-        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-        return R * c; 
+        const R = 6371000;
+        const dLat = (lat2-lat1) * Math.PI/180;
+        const dLon = (lon2-lon1) * Math.PI/180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function unlockGame() {
-        document.getElementById('geo-lock').style.display = 'none';
-        document.getElementById('game-content').classList.add('unlocked');
-        // Optionnel : petite vibration si supporté
-        if(window.navigator.vibrate) window.navigator.vibrate(200);
+    // --- LANCEMENT DU JEU ---
+    function launchGame() {
+        document.getElementById('game-screen').style.display = 'flex';
+        // Ici on appellera CODEJEUX1, CODEJEUX2 etc.
+        document.getElementById('game-content').innerHTML = `
+            <h2>Énigme ${currentStep + 1}</h2>
+            <p>Jeu en cours de chargement...</p>
+            <button class="btn" onclick="validateTest()">VALIDER (DEBUG)</button>
+        `;
     }
 
-    function handleError(err) {
-        console.warn('Erreur GPS : ', err);
-        alert("Veuillez autoriser la géolocalisation pour jouer.");
+    function validateTest() {
+        document.getElementById('game-screen').style.display = 'none';
+        currentStep++;
+        document.getElementById('dash-step').innerText = `${currentStep + 1} / 9`;
+        // La navigation reprend, le chrono aussi car dist redeviendra > 30m
     }
 </script>
 </body>
