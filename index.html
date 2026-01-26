@@ -15,14 +15,12 @@
             margin: 0; overflow: hidden; height: 100vh; 
         }
 
-        /* HALO DE BORDURE */
         #nav-halo {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             border: 0px solid transparent; transition: border-color 0.6s, border-width 0.3s;
             pointer-events: none; z-index: 5000; box-sizing: border-box;
         }
 
-        /* BOUSSOLE FOLLE */
         #compass-container {
             width: 120px; height: 120px; border: 2px solid var(--gold);
             border-radius: 50%; position: relative; margin: 20px auto;
@@ -34,7 +32,6 @@
             transition: transform 0.2s ease-out; border-radius: 2px;
         }
 
-        /* UI ELEMENTS */
         #profile-btn {
             position: fixed; top: 20px; right: 20px; width: 50px; height: 50px;
             background: rgba(30, 30, 30, 0.9); border: 2px solid var(--gold);
@@ -171,7 +168,6 @@
         const lat = pos.coords.latitude; const lon = pos.coords.longitude;
         const dist = calculateDistance(lat, lon, target.lat, target.lon);
         
-        // Logique Boussole
         const angle = Math.atan2(target.lon - lon, target.lat - lat) * (180 / Math.PI);
         const needle = document.getElementById('needle');
         if (dist < 35) {
@@ -218,8 +214,60 @@
         if(currentStep >= 9) alert("BRAVO ! Vous avez fini le parcours.");
     }
 
-    // --- TEMPLATES DES JEUX ---
-    function CODEJEUX1(p) { p.innerHTML = "<h2>DÉFI 1</h2><button class='btn' onclick='validateStep(100)'>Terminer</button>"; }
+    // --- ZONE DES JEUX (PROPRE) ---
+
+    function CODEJEUX1(p) {
+        const sequenceCorrecte = [0, 2, 8, 6]; 
+        let sequenceJoueur = [];
+
+        p.innerHTML = `
+            <div style="background: rgba(20,20,20,0.95); padding: 25px; border: 2px solid var(--gold); border-radius: 20px;">
+                <h2 style="color: var(--gold); margin: 0 0 10px 0;">INITIALISATION</h2>
+                <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 20px;">Reproduisez le motif lumineux.</p>
+                <div id="grid-container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 0 auto 20px; width: 210px;">
+                    ${[0,1,2,3,4,5,6,7,8].map(i => `
+                        <div id="node-${i}" onclick="touchNode(${i})" style="width: 60px; height: 60px; border: 2px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; cursor: pointer; background: rgba(255,255,255,0.02);">
+                            <div style="width: 8px; height: 8px; background: #444; border-radius: 50%;"></div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn" onclick="montrerSequence()" style="background: none; border: 1px solid var(--gold); color: var(--gold); font-size: 0.7rem; padding: 10px; width: 100%;">REVOIR LE MOTIF</button>
+                <p id="feedback-1" style="margin-top: 15px; font-weight: bold; min-height: 1.2rem; font-size: 0.9rem;"></p>
+            </div>
+        `;
+
+        function flashNode(id, color, duration = 500) {
+            const node = document.getElementById('node-' + id);
+            if(!node) return;
+            node.style.borderColor = color;
+            node.style.boxShadow = '0 0 15px ' + color;
+            setTimeout(() => { node.style.borderColor = "#333"; node.style.boxShadow = "none"; }, duration);
+        }
+
+        window.montrerSequence = function() {
+            sequenceJoueur = [];
+            document.getElementById('feedback-1').innerText = "OBSERVEZ...";
+            sequenceCorrecte.forEach((nodeId, index) => {
+                setTimeout(() => flashNode(nodeId, "var(--gold)"), (index + 1) * 600);
+            });
+        };
+
+        window.touchNode = function(id) {
+            flashNode(id, "var(--blue)", 300);
+            sequenceJoueur.push(id);
+            if (sequenceJoueur[sequenceJoueur.length - 1] !== sequenceCorrecte[sequenceJoueur.length - 1]) {
+                document.getElementById('feedback-1').innerText = "❌ ERREUR";
+                sequenceJoueur = [];
+                return;
+            }
+            if (sequenceJoueur.length === sequenceCorrecte.length) {
+                document.getElementById('feedback-1').innerText = "✅ RÉUSSI";
+                setTimeout(() => validateStep(100), 1000);
+            }
+        };
+        setTimeout(montrerSequence, 1000);
+    }
+
     function CODEJEUX2(p) { p.innerHTML = "<h2>DÉFI 2</h2><button class='btn' onclick='validateStep(100)'>Terminer</button>"; }
     function CODEJEUX3(p) { p.innerHTML = "<h2>DÉFI 3</h2><button class='btn' onclick='validateStep(100)'>Terminer</button>"; }
     function CODEJEUX4(p) { p.innerHTML = "<h2>DÉFI 4</h2><button class='btn' onclick='validateStep(100)'>Terminer</button>"; }
