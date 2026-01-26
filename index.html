@@ -2,137 +2,190 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Saumur Quest Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Saumur Quest - Moteur Final</title>
     <style>
-        :root { --gold: #fbc02d; --bg: #0a0a0a; --blue: #00d4ff; --green: #00ff41; --orange: #ff8c00; --red: #ff0000; }
+        :root { 
+            --gold: #fbc02d; --bg: #0a0a0a; --blue: #00d4ff; 
+            --green: #00ff41; --orange: #ff8c00; --red: #ff0000; 
+        }
         
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; overflow: hidden; height: 100vh; }
+        body { 
+            background: var(--bg); color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; overflow: hidden; height: 100vh; 
+        }
 
-        /* HALO DE NAVIGATION (Bords de l'écran) */
+        /* NAVIGATION HALO (Bordures réactives) */
         #nav-halo {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            border: 0px solid transparent; transition: border-width 0.3s, border-color 0.5s;
-            pointer-events: none; z-index: 5000;
+            border: 0px solid transparent; transition: border-color 0.6s, border-width 0.3s;
+            pointer-events: none; z-index: 5000; box-sizing: border-box;
         }
 
-        /* BOUTON PROFIL PERSISTANT */
+        /* BOUTON PROFIL & DASHBOARD */
         #profile-btn {
-            position: fixed; top: 15px; right: 15px; width: 50px; height: 50px;
-            background: rgba(40, 40, 40, 0.9); border: 2px solid var(--gold);
+            position: fixed; top: 20px; right: 20px; width: 55px; height: 55px;
+            background: rgba(30, 30, 30, 0.95); border: 2px solid var(--gold);
             border-radius: 50%; z-index: 9000; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6); font-size: 24px; cursor: pointer;
         }
 
-        /* DASHBOARD CACHÉ */
         #dashboard {
-            position: fixed; top: 0; right: -100%; width: 250px; height: 100vh;
-            background: rgba(15, 15, 15, 0.98); border-left: 2px solid var(--gold);
-            z-index: 8500; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            padding: 80px 20px 20px; box-sizing: border-box;
+            position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+            background: rgba(10, 10, 10, 0.98); border-left: 2px solid var(--gold);
+            z-index: 8500; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+            padding: 90px 25px 30px; box-sizing: border-box;
         }
         #dashboard.open { right: 0; }
-        .stat-item { margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .stat-label { font-size: 0.7rem; color: #888; text-transform: uppercase; }
-        .stat-val { font-size: 1.4rem; color: var(--gold); font-weight: bold; display: block; }
 
-        /* ÉCRANS DE JEU */
-        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: center; align-items: center; justify-content: center; flex-direction: column; padding: 20px; box-sizing: border-box; text-align: center; }
+        .stat-item { margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 1.5rem; color: var(--gold); font-weight: bold; display: block; margin-top: 5px; }
+
+        /* ÉCRANS (Screens) */
+        .screen { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            padding: 30px; box-sizing: border-box; text-align: center; 
+        }
         #setup-screen { z-index: 10000; background: var(--bg); }
         #nav-screen { z-index: 4000; }
-        #game-screen { z-index: 6000; background: var(--bg); display: none; }
+        #game-screen { z-index: 6000; background: var(--bg); display: none; overflow-y: auto; }
 
-        .btn { background: var(--gold); color: black; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; }
-        input[type="text"] { background: #222; border: 1px solid var(--gold); color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 20px; width: 80%; }
-        
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-        .blinking { animation: blink 1s infinite; }
+        /* BOUTONS & INPUTS */
+        .btn { 
+            background: var(--gold); color: black; border: none; padding: 18px 35px; 
+            border-radius: 40px; font-weight: 800; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 1px; margin: 10px 0; transition: transform 0.2s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-reset { background: transparent; border: 1px dashed #555; color: #ff4444; margin-top: 40px; padding: 10px; font-size: 0.7rem; }
+
+        input[type="text"] { 
+            background: #1a1a1a; border: 2px solid #333; color: white; padding: 15px; 
+            border-radius: 15px; text-align: center; margin-bottom: 25px; width: 100%; 
+            max-width: 300px; font-size: 1.2rem; outline: none;
+        }
+        input:focus { border-color: var(--gold); }
+
+        /* ANIMATIONS */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .blinking { animation: blink 1.5s infinite; }
     </style>
 </head>
 <body>
 
     <div id="nav-halo"></div>
-
     <div id="profile-btn" onclick="toggleDashboard()">👤</div>
 
     <div id="dashboard">
         <div class="stat-item"><span class="stat-label">Joueur</span><span class="stat-val" id="dash-name">---</span></div>
         <div class="stat-item"><span class="stat-label">Chrono Marche</span><span class="stat-val" id="dash-chrono">00:00</span></div>
-        <div class="stat-item"><span class="stat-label">Score Total</span><span class="stat-val" id="dash-score">0</span></div>
-        <div class="stat-item"><span class="stat-label">Étape Actuelle</span><span class="stat-val" id="dash-step">1 / 9</span></div>
+        <div class="stat-item"><span class="stat-label">Points</span><span class="stat-val" id="dash-score">0</span></div>
+        <div class="stat-item"><span class="stat-label">Progression</span><span class="stat-val" id="dash-step">1 / 9</span></div>
+        <button class="btn btn-reset" onclick="resetGame()">Réinitialiser l'aventure</button>
     </div>
 
     <div id="setup-screen" class="screen">
-        <h1 style="color: var(--gold)">BIENVENUE</h1>
-        <p>Entrez votre nom pour commencer l'aventure</p>
-        <input type="text" id="player-name" placeholder="Votre Pseudo...">
-        <button class="btn" onclick="startGame()">DÉMARRER</button>
+        <h1 style="color: var(--gold); font-size: 2.5rem; margin-bottom: 10px;">SAUMUR QUEST</h1>
+        <div id="new-game-box">
+            <p style="color: #aaa; margin-bottom: 30px;">Prêt pour l'aventure urbaine ?</p>
+            <input type="text" id="player-name" placeholder="Ton Pseudo...">
+            <button class="btn" onclick="initNewGame()">Commencer</button>
+        </div>
+        <div id="resume-box" style="display:none;">
+            <p style="color: var(--green); font-weight: bold;">Une quête est en cours !</p>
+            <button class="btn" onclick="resumeGame()">Reprendre l'aventure</button>
+            <p style="font-size: 0.8rem; color: #555; margin-top: 20px;" onclick="resetGame()">Ou recommencer à zéro</p>
+        </div>
     </div>
 
     <div id="nav-screen" class="screen">
-        <h2 id="nav-msg">Initialisation GPS...</h2>
-        <div id="radar-dist" style="font-size: 3rem; font-weight: 900; margin: 20px 0;">---</div>
-        <div id="zone-action-btn" style="display:none;">
-            <button class="btn" onclick="launchGame()">LANCER LE JEU</button>
+        <h2 id="nav-msg" style="margin-bottom: 0;">Initialisation GPS...</h2>
+        <div id="radar-dist" style="font-size: 4rem; font-weight: 900; margin: 10px 0; color: white;">---</div>
+        <p id="nav-instruction" style="color: #888;">Suivez le signal pour débloquer l'étape.</p>
+        <div id="zone-action-btn" style="display:none; margin-top: 30px;">
+            <button class="btn" onclick="launchGame()">Lancer le Défi</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="game-content"></div>
+        <div id="game-inject" style="width: 100%;"></div>
     </div>
 
 <script>
-    // --- VARIABLES GLOBALES ---
+    // --- CONFIGURATION GPS ---
+    const GPS = [
+        { lat: 47.25865295634987, lon: -0.07232092747517298, name: "GPS1" },
+        { lat: 47.25922301993599, lon: -0.07496422077580976, name: "GPS2" },
+        { lat: 47.25957512835827, lon: -0.07585838017127501, name: "GPS3" },
+        { lat: 47.25855640527987, lon: -0.07438732146623522, name: "GPS4" },
+        { lat: 47.25777300506129, lon: -0.07572423946778357, name: "GPS5" },
+        { lat: 47.257047880177915, lon: -0.07570440178130702, name: "GPS6" },
+        { lat: 47.2566497660443, lon: -0.0740386275036121, name: "GPS7" },
+        { lat: 47.253662326392785, lon: -0.07059828273820297, name: "GPS8" },
+        { lat: 47.25564998079592, lon: -0.068996433977779, name: "GPS9" }
+    ];
+
     let playerName = "";
     let currentStep = 0;
     let score = 0;
     let marchTimer = 0;
     let timerActive = false;
-    let intervalChrono;
-    let isAtCenter = false; // Zone Bleue
+    let isAtCenter = false;
 
-    // --- COORDONNÉES GPS (À remplir plus tard) ---
-    const GPS = [
-        { lat: 47.2592, lon: -0.0731, name: "GPS1" },
-        { lat: 47.2600, lon: -0.0750, name: "GPS2" }
-        // ... jusqu'à GPS9
-    ];
-
-    // --- LOGIQUE DASHBOARD ---
-    function toggleDashboard() {
-        document.getElementById('dashboard').classList.toggle('open');
-    }
-
-    // --- DÉMARRAGE ---
-    function startGame() {
-        playerName = document.getElementById('player-name').value || "Explorateur";
-        document.getElementById('dash-name').innerText = playerName;
-        document.getElementById('setup-screen').style.display = 'none';
-        initGPS();
-    }
-
-    // --- GESTION DU CHRONO DE MARCHE ---
-    function updateChrono() {
-        if (timerActive) {
-            marchTimer++;
-            const m = Math.floor(marchTimer / 60).toString().padStart(2, '0');
-            const s = (marchTimer % 60).toString().padStart(2, '0');
-            document.getElementById('dash-chrono').innerText = `${m}:${s}`;
+    // --- INITIALISATION ---
+    window.onload = () => {
+        const saved = localStorage.getItem('saumur_quest_v2_safe');
+        if (saved) {
+            document.getElementById('new-game-box').style.display = 'none';
+            document.getElementById('resume-box').style.display = 'block';
         }
+    };
+
+    function initNewGame() {
+        playerName = document.getElementById('player-name').value || "Explorateur";
+        saveState();
+        startGame();
     }
 
-    // --- GESTION GPS & HALO ---
-    function initGPS() {
-        navigator.geolocation.watchPosition(updatePosition, null, { enableHighAccuracy: true });
-        intervalChrono = setInterval(updateChrono, 1000);
+    function resumeGame() {
+        const saved = JSON.parse(localStorage.getItem('saumur_quest_v2_safe'));
+        playerName = saved.playerName;
+        currentStep = saved.currentStep;
+        score = saved.score;
+        marchTimer = saved.marchTimer;
+        startGame();
     }
 
-    function updatePosition(pos) {
-        const pLat = pos.coords.latitude;
-        const pLon = pos.coords.longitude;
+    function saveState() {
+        const state = { playerName, currentStep, score, marchTimer };
+        localStorage.setItem('saumur_quest_v2_safe', JSON.stringify(state));
+    }
+
+    function startGame() {
+        document.getElementById('dash-name').innerText = playerName;
+        document.getElementById('dash-step').innerText = `${currentStep + 1} / 9`;
+        document.getElementById('setup-screen').style.display = 'none';
+        updateChronoUI();
+        
+        // Surveillance GPS
+        navigator.geolocation.watchPosition(updateGPS, null, { enableHighAccuracy: true });
+        
+        // Moteur du Chrono
+        setInterval(() => {
+            if (timerActive) {
+                marchTimer++;
+                updateChronoUI();
+                if (marchTimer % 10 === 0) saveState();
+            }
+        }, 1000);
+    }
+
+    function updateGPS(pos) {
         const target = GPS[currentStep];
-        const dist = calculateDistance(pLat, pLon, target.lat, target.lon);
-
+        if (!target) return;
+        const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, target.lat, target.lon);
         document.getElementById('radar-dist').innerText = Math.round(dist) + "m";
         updateHalo(dist);
     }
@@ -142,35 +195,33 @@
         const actionBtn = document.getElementById('zone-action-btn');
         const navMsg = document.getElementById('nav-msg');
 
-        halo.style.borderWidth = "15px";
-        actionBtn.style.display = 'none';
+        halo.style.borderWidth = "20px";
         isAtCenter = false;
 
-        if (dist > 100) { // LOIN
+        if (dist > 100) { // ROUGE
             halo.style.borderColor = "var(--red)";
             halo.classList.remove('blinking');
             navMsg.innerText = "Trop loin...";
             timerActive = true; 
-        } 
-        else if (dist > 30) { // PROCHE
+            actionBtn.style.display = 'none';
+        } else if (dist > 35) { // ORANGE
             halo.style.borderColor = "var(--orange)";
             halo.classList.add('blinking');
-            navMsg.innerText = "Vous chauffez !";
+            navMsg.innerText = "Vous approchez !";
             timerActive = true;
-        } 
-        else if (dist > 10) { // ZONE VERTE (JEU DISPONIBLE)
+            actionBtn.style.display = 'none';
+        } else if (dist > 12) { // VERT
             halo.style.borderColor = "var(--green)";
             halo.classList.remove('blinking');
-            navMsg.innerText = " ZONE ATTEINTE !";
+            navMsg.innerText = "ZONE DE DÉFI";
+            timerActive = false; // Pause chrono
             actionBtn.style.display = 'block';
-            timerActive = false; // LE CHRONO S'ARRÊTE
-        } 
-        else { // ZONE BLEUE (CENTRE)
+        } else { // BLEU (CENTRE)
             halo.style.borderColor = "var(--blue)";
-            navMsg.innerText = " POSITION PARFAITE !";
-            actionBtn.style.display = 'block';
+            navMsg.innerText = "CIBLE ATTEINTE";
             timerActive = false;
-            isAtCenter = true; // Crucial pour l'étape 9
+            actionBtn.style.display = 'block';
+            isAtCenter = true;
         }
     }
 
@@ -182,22 +233,65 @@
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    // --- LANCEMENT DU JEU ---
     function launchGame() {
         document.getElementById('game-screen').style.display = 'flex';
-        // Ici on appellera CODEJEUX1, CODEJEUX2 etc.
-        document.getElementById('game-content').innerHTML = `
-            <h2>Énigme ${currentStep + 1}</h2>
-            <p>Jeu en cours de chargement...</p>
-            <button class="btn" onclick="validateTest()">VALIDER (DEBUG)</button>
-        `;
+        const container = document.getElementById('game-inject');
+        container.innerHTML = ""; 
+
+        // Aiguillage vers les fonctions de jeux
+        switch(currentStep) {
+            case 0: CODEJEUX1(container); break;
+            case 1: CODEJEUX2(container); break;
+            case 2: CODEJEUX3(container); break;
+            case 3: CODEJEUX4(container); break;
+            case 4: CODEJEUX5(container); break;
+            case 5: CODEJEUX6(container); break;
+            case 6: CODEJEUX7(container); break;
+            case 7: CODEJEUX8(container); break;
+            case 8: CODEJEUX9(container); break;
+        }
     }
 
-    function validateTest() {
+    // --- MOTEUR DE VALIDATION ---
+    function stepValidated(pointsGagnes) {
+        score += pointsGagnes;
+        document.getElementById('dash-score').innerText = score;
         document.getElementById('game-screen').style.display = 'none';
+        
         currentStep++;
-        document.getElementById('dash-step').innerText = `${currentStep + 1} / 9`;
-        // La navigation reprend, le chrono aussi car dist redeviendra > 30m
+        saveState();
+        
+        if (currentStep < 9) {
+            document.getElementById('dash-step').innerText = `${currentStep + 1} / 9`;
+            alert("Étape réussie ! En route pour la suite.");
+        } else {
+            alert("Félicitations ! Vous avez atteint l'étape finale.");
+        }
+    }
+
+    // --- FONCTIONS JEUX (À REMPLIR) ---
+    function CODEJEUX1(p) { p.innerHTML = "<h2>DÉFI 1</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX2(p) { p.innerHTML = "<h2>DÉFI 2</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX3(p) { p.innerHTML = "<h2>DÉFI 3</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX4(p) { p.innerHTML = "<h2>DÉFI 4</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX5(p) { p.innerHTML = "<h2>DÉFI 5</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX6(p) { p.innerHTML = "<h2>DÉFI 6</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX7(p) { p.innerHTML = "<h2>DÉFI 7</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX8(p) { p.innerHTML = "<h2>DÉFI 8</h2><button class='btn' onclick='stepValidated(100)'>Gagner 100 pts</button>"; }
+    function CODEJEUX9(p) { p.innerHTML = "<h2>DÉFI FINAL</h2><button class='btn' onclick='stepValidated(100)'>Voir le Podium</button>"; }
+
+    // --- UTILITAIRES ---
+    function toggleDashboard() { document.getElementById('dashboard').classList.toggle('open'); }
+    function updateChronoUI() {
+        const m = Math.floor(marchTimer / 60).toString().padStart(2, '0');
+        const s = (marchTimer % 60).toString().padStart(2, '0');
+        document.getElementById('dash-chrono').innerText = `${m}:${s}`;
+    }
+    function resetGame() {
+        if(confirm("Tout effacer et recommencer ?")) {
+            localStorage.removeItem('saumur_quest_v2_safe');
+            location.reload();
+        }
     }
 </script>
 </body>
