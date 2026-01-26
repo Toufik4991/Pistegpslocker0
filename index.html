@@ -16,7 +16,7 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- CADRE VISUEL --- */
+        /* --- CADRE VISUEL DU JEU --- */
         #game-container {
             width: 95%; max-width: 450px; height: 85vh;
             background: var(--bg); border: 2px solid var(--gold);
@@ -24,82 +24,118 @@
             box-shadow: 0 0 50px rgba(0,0,0,1);
         }
 
-        /* --- HALO DE BORDURE (LOGIQUE GPS) --- */
+        /* --- HALO DE BORDURE (GPS) --- */
         #nav-halo {
-            position: absolute; inset: 0;
-            border: 0px solid transparent; transition: all 0.6s ease;
-            pointer-events: none; z-index: 5; border-radius: 22px;
+            position: absolute; inset: 0; border: 0px solid transparent; 
+            transition: all 0.6s ease; pointer-events: none; z-index: 5; border-radius: 22px;
+        }
+
+        /* --- INTERFACE UTILISATEUR (Stats & Boussole) --- */
+        #ui-layer {
+            position: absolute; top: 15px; right: 15px;
+            display: flex; flex-direction: column; align-items: flex-end;
+            gap: 12px; z-index: 50;
+        }
+
+        #stats-card {
+            background: rgba(20, 20, 20, 0.85); padding: 12px;
+            border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.4);
+            font-size: 0.75rem; color: var(--gold); text-align: right;
+            backdrop-filter: blur(8px); min-width: 100px;
+        }
+
+        #compass-box {
+            width: 55px; height: 55px;
+            border: 1px solid var(--gold); border-radius: 50%;
+            position: relative; cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Zoom boussole au clic */
+        #compass-box.zoom {
+            position: fixed; top: 50%; left: 50%;
+            width: 220px; height: 220px;
+            transform: translate(-50%, -50%);
+            background: rgba(10,10,10,0.98);
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            z-index: 1000; border-width: 2px;
+        }
+
+        #needle {
+            width: 2px; height: 80%;
+            background: linear-gradient(to bottom, var(--red) 50%, #fff 50%);
+            position: absolute; left: 49%; 
+            transform-origin: center center;
+            transition: transform 0.3s ease-out;
         }
 
         /* --- ECRANS --- */
-        .screen { 
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; padding: 20px; text-align: center;
-        }
+        .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         
-        #setup-screen { z-index: 100; background: radial-gradient(circle, #1a1a1a, #000); }
+        #setup-screen { z-index: 100; background: radial-gradient(circle, #1a1a1a, #000); text-align: center; }
         #nav-screen { z-index: 10; display: none; }
-        #game-screen { z-index: 200; display: none; background: rgba(0,0,0,0.9); }
-
-        /* --- BOUSSOLE MODERNE --- */
-        .compass {
-            width: 100px; height: 100px; border: 3px solid var(--gold);
-            border-radius: 50%; position: relative; background: #1a1a1a;
-            margin-bottom: 20px;
-        }
-        #needle {
-            width: 4px; height: 40px; background: linear-gradient(to bottom, var(--red) 50%, #fff 50%);
-            position: absolute; top: 10px; left: 48px; transform-origin: bottom center;
-            transition: transform 0.3s ease-out;
-        }
+        #game-screen { z-index: 200; display: none; background: rgba(0,0,0,0.92); }
 
         /* --- PARCHEMIN MODERNE --- */
         .parchment {
             background: var(--parchment); color: #2c3e50;
-            padding: 25px; border-radius: 15px; width: 85%;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            padding: 30px; border-radius: 15px; width: 85%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            position: relative;
         }
 
         .btn { 
             background: var(--gold); color: black; border: none; 
-            padding: 15px 30px; border-radius: 30px; font-weight: bold; 
-            text-transform: uppercase; cursor: pointer; margin-top: 15px;
+            padding: 14px 28px; border-radius: 30px; font-weight: bold; 
+            cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            margin-top: 20px;
         }
 
-        #timer-ui { position: absolute; top: 15px; right: 20px; color: var(--gold); font-size: 0.8rem; }
+        input {
+            padding: 12px; border-radius: 8px; border: 1px solid var(--gold);
+            background: none; color: white; width: 200px; text-align: center;
+            margin-bottom: 20px; outline: none;
+        }
     </style>
 </head>
 <body>
 
 <div id="game-container">
     <div id="nav-halo"></div>
-    <div id="timer-ui">00:00</div>
+
+    <div id="ui-layer" style="display:none;">
+        <div id="stats-card">
+            <div id="display-name" style="font-weight: bold; margin-bottom: 4px;">---</div>
+            <div id="display-timer">00:00</div>
+            <div id="display-step">Etape 1 / 2</div>
+        </div>
+        <div id="compass-box" onclick="this.classList.toggle('zoom')">
+            <div id="needle"></div>
+            <div style="position:absolute; top:2px; font-size:8px; color:var(--gold)">N</div>
+        </div>
+    </div>
 
     <div id="setup-screen" class="screen">
-        <h1 style="font-size: 3rem; margin:0;">🌝 ☝️ 🧭</h1>
-        <p style="color:var(--gold); letter-spacing:2px;">SAUMUR QUEST</p>
-        <input type="text" id="player-name" placeholder="Pseudo..." style="padding:10px; border-radius:8px; border:1px solid var(--gold); background:none; color:white; margin:20px 0;">
-        <button class="btn" onclick="initNewGame()">Commencer</button>
+        <h1 style="font-size: 3.5rem; margin: 0;">🌝 ☝️ 🧭</h1>
+        <p style="color:var(--gold); letter-spacing:3px; margin-bottom:30px;">SAUMUR QUEST</p>
+        <input type="text" id="player-name" placeholder="Pseudo de l'aventurier">
+        <button class="btn" onclick="initNewGame()">Lancer l'aventure</button>
     </div>
 
     <div id="nav-screen" class="screen">
-        <div class="compass">
-            <div id="needle"></div>
-            <div style="position:absolute; top:5px; left:46px; color:var(--gold); font-size:10px; font-weight:bold;">N</div>
-        </div>
-        
         <div class="parchment">
-            <h3 id="nav-msg">Initialisation...</h3>
-            <div id="radar-dist" style="font-size: 3rem; font-weight: 900;">---</div>
-            <p id="player-display" style="font-style:italic; font-size:0.8rem;"></p>
+            <h3 id="nav-msg" style="margin-top:0;">Recherche de zone...</h3>
+            <div id="radar-dist" style="font-size: 3.5rem; font-weight: 900; color: #000;">---</div>
             <div id="zone-action-btn" style="display:none;">
-                <button class="btn" onclick="launchMiniGame()">Lancer le Défi</button>
+                <button class="btn" onclick="openGameScreen()">Entrer dans le défi</button>
             </div>
         </div>
     </div>
 
     <div id="game-screen" class="screen">
-        <div id="game-inject" style="width:100%;"></div>
+        <div id="game-inject" style="width:100%; display:flex; justify-content:center;"></div>
     </div>
 </div>
 
@@ -110,20 +146,23 @@
         { lat: 47.259223, lon: -0.074964 }
     ];
 
-    let playerName = "", currentStep = 0, seconds = 0;
+    let currentStep = 0, seconds = 0, playerName = "";
 
     function initNewGame() {
         playerName = document.getElementById('player-name').value || "Explorateur";
-        document.getElementById('player-display').innerText = "Explorateur : " + playerName;
+        document.getElementById('display-name').innerText = playerName;
+        document.getElementById('display-step').innerText = `Etape ${currentStep + 1} / ${GPS.length}`;
+        
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('nav-screen').style.display = 'flex';
+        document.getElementById('ui-layer').style.display = 'flex';
         
-        // Timer
+        // Timer global
         setInterval(() => {
             seconds++;
             let m = Math.floor(seconds/60).toString().padStart(2,'0');
             let s = (seconds%60).toString().padStart(2,'0');
-            document.getElementById('timer-ui').innerText = `${m}:${s}`;
+            document.getElementById('display-timer').innerText = `${m}:${s}`;
         }, 1000);
 
         navigator.geolocation.watchPosition(updateGPS, null, { enableHighAccuracy: true });
@@ -137,48 +176,71 @@
         
         // Boussole
         const angle = Math.atan2(target.lon - lon, target.lat - lat) * (180 / Math.PI);
-        document.getElementById('needle').style.transform = `translateX(-50%) rotate(${angle}deg)`;
+        document.getElementById('needle').style.transform = `rotate(${angle}deg)`;
 
         // Radar Distance
         document.getElementById('radar-dist').innerText = Math.round(dist) + "m";
         
-        // Logique Halo & Bouton
+        // Logique Halo
         const h = document.getElementById('nav-halo');
         const btn = document.getElementById('zone-action-btn');
         const msg = document.getElementById('nav-msg');
         
-        h.style.borderWidth = "15px";
+        h.style.borderWidth = "20px";
         if(dist > 100) { 
-            h.style.borderColor = "var(--red)"; msg.innerText = "Cherchez..."; btn.style.display='none'; 
+            h.style.borderColor = "var(--red)"; msg.innerText = "Trop loin..."; btn.style.display='none'; 
         } else if(dist > 35) { 
-            h.style.borderColor = "var(--orange)"; msg.innerText = "Approche..."; btn.style.display='none'; 
+            h.style.borderColor = "var(--orange)"; msg.innerText = "Vous approchez..."; btn.style.display='none'; 
         } else { 
             h.style.borderColor = "var(--green)"; msg.innerText = "ZONE ATTEINTE"; btn.style.display='block'; 
         }
     }
 
-    // FONCTION POUR TES FUTURS JEUX PERSONNALISÉS
-    function launchMiniGame() {
+    function openGameScreen() {
         document.getElementById('game-screen').style.display = 'flex';
+        launchMiniGame(currentStep);
+    }
+
+    // ============================================================
+    // 🎮 ZONE DE MODIFICATION DES JEUX (À CHANGER DANS LE FUTUR)
+    // ============================================================
+    function launchMiniGame(step) {
         const container = document.getElementById('game-inject');
         
-        // C'est ici que tu personnaliseras selon l'étape
-        if(currentStep === 0) {
+        if(step === 0) {
+            // JEU ÉTAPE 1
             container.innerHTML = `
                 <div class="parchment">
-                    <h2>DÉFI N°1</h2>
-                    <p>Bravo ${playerName}. Tape 3 fois sur la lune pour continuer.</p>
-                    <button class="btn" onclick="validateStep()">Réussir</button>
+                    <h2>L'Énigme du Portier</h2>
+                    <p>Bravo ${playerName}. Pour déverrouiller cette étape, résolvez l'énigme...</p>
+                    <button class="btn" onclick="validateStep()">Réussir le défi</button>
                 </div>`;
-        } else {
-            container.innerHTML = `<div class="parchment"><h2>DÉFI SUIVANT</h2><button class="btn" onclick="validateStep()">Continuer</button></div>`;
+        } 
+        else if(step === 1) {
+            // JEU ÉTAPE 2
+            container.innerHTML = `
+                <div class="parchment">
+                    <h2>Le Secret du Château</h2>
+                    <p>Le trésor est proche. Tapez sur continuer.</p>
+                    <button class="btn" onclick="validateStep()">Terminer la quête</button>
+                </div>`;
         }
     }
 
     function validateStep() {
         currentStep++;
-        document.getElementById('game-screen').style.display = 'none';
-        if(currentStep >= GPS.length) alert("Félicitations, quête terminée !");
+        if(currentStep < GPS.length) {
+            document.getElementById('display-step').innerText = `Etape ${currentStep + 1} / ${GPS.length}`;
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('zone-action-btn').style.display = 'none';
+        } else {
+            document.getElementById('game-inject').innerHTML = `
+                <div class="parchment">
+                    <h2>FÉLICITATIONS !</h2>
+                    <p>Quête terminée avec succès en ${document.getElementById('display-timer').innerText}.</p>
+                    <button class="btn" onclick="location.reload()">Recommencer</button>
+                </div>`;
+        }
     }
 
     function calculateDistance(la1, lo1, la2, lo2) {
