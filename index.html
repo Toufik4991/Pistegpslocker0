@@ -18,13 +18,13 @@
             border-radius: 25px; position: relative; overflow: hidden;
         }
 
-        /* HALO DE NAVIGATION */
+        /* HALO DE NAVIGATION (Chaud/Froid) */
         #nav-halo {
-            position: absolute; inset: 0; border: 0px solid transparent; 
+            position: absolute; inset: 0; border: 4px solid transparent; 
             transition: all 0.4s ease; pointer-events: none; z-index: 5; border-radius: 22px;
         }
 
-        /* TOP BAR & BOUTONS */
+        /* BARRE DE NAVIGATION SUPÉRIEURE */
         .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2000; justify-content: flex-end; }
         .circle-btn { width: 45px; height: 45px; background: rgba(20,20,20,0.95); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
         
@@ -34,12 +34,12 @@
             padding: 15px; border-radius: 15px; min-width: 180px; backdrop-filter: blur(15px); z-index: 2100;
         }
 
-        /* BOUSSOLE GEANTE (70%) */
+        /* BOUSSOLE GÉANTE (70% de l'écran) */
         #compass-menu { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 75vh; background: rgba(0,0,0,0.95);
             display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1500; border: none;
+            z-index: 1500;
         }
         #compass-disk { 
             width: 280px; height: 280px; border: 8px solid var(--gold); border-radius: 50%; 
@@ -48,14 +48,13 @@
         }
         #needle { width: 10px; height: 80%; background: linear-gradient(to bottom, var(--red) 50%, #eee 50%); position: absolute; border-radius: 10px; }
 
-        /* ARCADE ARENA */
-        #arcade-arena { width: 100%; height: 300px; background: #050505; border: 2px solid var(--gold); position: relative; overflow: hidden; border-radius: 15px; }
-        .window { position: absolute; width: 25px; height: 40px; background: #111; border: 1px solid #333; }
+        /* ÉLÉMENTS GRAPHIQUES JEU 1 */
+        #arcade-arena { width: 100%; height: 350px; border: 2px solid var(--gold); position: relative; overflow: hidden; border-radius: 15px; }
+        .window { width: 30px; height: 45px; background: #111; border: 1px solid #333; transition: 0.2s; }
         .window.active { background: #ffea00; box-shadow: 0 0 15px #ffea00; }
-        #player-sprite { position: absolute; bottom: 20px; font-size: 2rem; transition: left 0.1s linear; z-index: 10; left: 50%; }
-        .hidden-mode { opacity: 0.3; filter: grayscale(1); }
+        .hidden-mode { transform: translateY(25px); opacity: 0.6; filter: grayscale(1); }
 
-        /* UI GENERALE */
+        /* INTERFACE GLOBALE */
         .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
         .parchment { background: var(--parchment); color: #2c3e50; padding: 20px; border-radius: 15px; width: 85%; min-height: 30vh; display: flex; flex-direction: column; justify-content: space-between; text-align: center;}
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
@@ -79,38 +78,38 @@
         <div class="circle-btn" onclick="toggleMenu('options-menu')">⚙️</div>
 
         <div id="dashboard" class="menu-content">
-            <div id="d-name" style="color:var(--gold); font-weight:bold; font-size: 1.1rem;">---</div>
+            <div id="d-name" style="color:var(--gold); font-weight:bold;">---</div>
             <hr style="border:0; border-top:1px solid #333;">
-            <div style="font-size:0.8rem;">Score Total: <span id="d-score">0</span></div>
-            <div style="font-size:0.8rem; color: var(--blue);">Énergie Boussole: <span id="d-energy">0</span></div>
-            <div style="font-size:0.8rem;">Étape: <span id="d-step">1 / 9</span></div>
+            <div style="font-size:0.8rem;">Score : <span id="d-score">0</span></div>
+            <div style="font-size:0.8rem; color: var(--blue);">Énergie : <span id="d-energy">0</span></div>
+            <div style="font-size:0.8rem;">Étape : <span id="d-step">1 / 9</span></div>
         </div>
 
         <div id="options-menu" class="menu-content">
-            <button class="btn" onclick="resetGame()" style="width:100%; background:var(--red); color:white;">Recommencer tout</button>
+            <button class="btn" onclick="resetGame()" style="width:100%; background:var(--red); color:white;">Réinitialiser</button>
         </div>
 
         <div id="compass-menu">
             <div id="compass-disk"><div id="needle"></div></div>
             <div id="dist-val" style="font-size:2.5rem; color:var(--gold); margin-top:20px; font-weight:bold;">-- m</div>
-            <div id="energy-display" style="color:var(--blue); font-weight:bold;">ENERGIE: <span id="energy-val">0</span> pts</div>
-            <button class="btn" onclick="toggleCompass()" style="margin-top:20px;">FERMER</button>
+            <div style="color:var(--blue); font-weight:bold; letter-spacing:1px;">BATTERIE: <span id="energy-val">0</span>%</div>
+            <button class="btn" onclick="toggleCompass()" style="margin-top:20px;">RETOURNER AU JEU</button>
         </div>
     </div>
 
-    <div id="status-msg">SYSTÈME GPS INITIALISATION...</div>
+    <div id="status-msg">GPS EN ATTENTE...</div>
 
     <div id="setup-screen" class="screen">
         <h1 style="font-size: 6rem; margin:0;">🌝</h1>
-        <input type="text" id="p-input" placeholder="Pseudo du Héros..." style="padding:15px; border-radius:12px; border:1px solid var(--gold); background:none; color:white; text-align:center; width:220px; margin-top:30px; font-size:1.1rem;">
-        <button class="btn" onclick="requestPermissions()" style="margin-top:30px; padding: 15px 40px;">C'EST PARTI</button>
+        <input type="text" id="p-input" placeholder="Ton Pseudo..." style="padding:15px; border-radius:12px; border:1px solid var(--gold); background:none; color:white; text-align:center; width:220px; margin-top:30px; font-size:1.1rem;">
+        <button class="btn" onclick="requestPermissions()" style="margin-top:30px; padding: 15px 40px;">LANCER L'AVENTURE</button>
     </div>
 
     <div id="nav-screen" class="screen" style="display:none;">
         <div id="action-zone" style="display:none;">
             <div class="parchment">
-                <h2 style="margin:0;">📍 SIGNAL DÉTECTÉ</h2>
-                <p>Tu es sur le lieu exact. Un défi t'attend pour débloquer la suite.</p>
+                <h2 style="margin:0;">📍 DESTINATION PROCHE</h2>
+                <p>Un secret local a été détecté par ton radar.</p>
                 <button class="btn" onclick="openMiniGame()">RELEVER LE DÉFI</button>
             </div>
         </div>
@@ -122,32 +121,39 @@
 </div>
 
 <script>
-    // --- CONFIGURATION DES POINTS GPS ---
+    // ==========================================
+    // 1. CONFIGURATION GPS (LES 9 POINTS)
+    // ==========================================
     const QUEST_DATA = [
         { lat: 47.25865295, lon: -0.07232092, title: "Le Tapageur" },
-        { lat: 47.25922301, lon: -0.07496422, title: "Étape 2" },
-        { lat: 47.25957512, lon: -0.07585838, title: "Étape 3" },
-        { lat: 47.25855640, lon: -0.07438732, title: "Étape 4" },
-        { lat: 47.25777300, lon: -0.07572423, title: "Étape 5" },
-        { lat: 47.25704788, lon: -0.07570440, title: "Étape 6" },
-        { lat: 47.25664976, lon: -0.07403862, title: "Étape 7" },
-        { lat: 47.25366232, lon: -0.07059828, title: "Étape 8" },
-        { lat: 47.25564998, lon: -0.06899643, title: "Étape 9" }
+        { lat: 47.25922301, lon: -0.07496422, title: "Point 2" },
+        { lat: 47.25957512, lon: -0.07585838, title: "Point 3" },
+        { lat: 47.25855640, lon: -0.07438732, title: "Point 4" },
+        { lat: 47.25777300, lon: -0.07572423, title: "Point 5" },
+        { lat: 47.25704788, lon: -0.07570440, title: "Point 6" },
+        { lat: 47.25664976, lon: -0.07403862, title: "Point 7" },
+        { lat: 47.25366232, lon: -0.07059828, title: "Point 8" },
+        { lat: 47.25564998, lon: -0.06899643, title: "Point 9" }
     ];
 
     let state = { step: 0, score: 0, boussoleEnergy: 0, name: "", isStarted: false };
     let deviceHeading = 0;
-    let lastDist = 999;
+    let gameActive = false;
+    let arcadeScore = 0;
+    let arcadeLives = 4;
+    let isHidden = false;
     let isCompassOpen = false;
+    let shoutInt;
 
-    // --- MOTEUR DE SAUVEGARDE ---
+    // ==========================================
+    // 2. MOTEUR GPS & SYSTÈME DE SAUVEGARDE
+    // ==========================================
     window.onload = () => {
-        const saved = localStorage.getItem('saumur_quest_final_v2');
+        const saved = localStorage.getItem('saumur_quest_v3');
         if(saved) { state = JSON.parse(saved); if(state.isStarted) resumeGame(); }
     };
-    function save() { localStorage.setItem('saumur_quest_final_v2', JSON.stringify(state)); }
+    function save() { localStorage.setItem('saumur_quest_v3', JSON.stringify(state)); }
 
-    // --- GPS & CAPTEURS ---
     function requestPermissions() {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission().then(res => {
@@ -166,10 +172,10 @@
         document.getElementById('d-name').innerText = state.name;
         navigator.geolocation.watchPosition(handleGPS, null, { enableHighAccuracy: true });
         
-        // Consommation boussole
+        // Système de consommation de la boussole (Temps réel)
         setInterval(() => {
             if(isCompassOpen && state.boussoleEnergy > 0) {
-                state.boussoleEnergy -= 2; // Vitesse de consommation
+                state.boussoleEnergy -= 2; 
                 if(state.boussoleEnergy <= 0) { state.boussoleEnergy = 0; toggleCompass(); }
                 updateUI();
             }
@@ -179,9 +185,9 @@
     function handleGPS(pos) {
         const target = QUEST_DATA[state.step];
         const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, target.lat, target.lon);
-        lastDist = dist;
-        
         const halo = document.getElementById('nav-halo');
+        
+        // Gestion du Halo de couleur
         let color = "var(--red)";
         if (dist < 5) color = "var(--blue)";
         else if (dist < 20) color = "var(--green)";
@@ -193,6 +199,7 @@
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
         document.getElementById('action-zone').style.display = dist < 25 ? 'block' : 'none';
 
+        // Gestion de l'aiguille de boussole
         const needle = document.getElementById('needle');
         if(dist < 15) { needle.style.animation = "crazy 0.4s linear infinite"; }
         else {
@@ -202,89 +209,117 @@
         }
     }
 
-    // --- AIGUILLAGE DES MINI-JEUX ---
+    // ==========================================
+    // 3. AIGUILLAGE DES MINI-JEUX (LE TRIEUR)
+    // ==========================================
     function openMiniGame() {
         document.getElementById('game-screen').style.display = 'flex';
         document.getElementById('game-inject').innerHTML = ""; 
         switch(state.step) {
             case 0: launchArcadeGame1(); break;
+            case 1: launchArcadeGame2(); break;
+            case 2: launchArcadeGame3(); break;
+            case 3: launchArcadeGame4(); break;
+            case 4: launchArcadeGame5(); break;
+            case 5: launchArcadeGame6(); break;
+            case 6: launchArcadeGame7(); break;
+            case 7: launchArcadeGame8(); break;
+            case 8: launchArcadeGame9(); break;
             default: launchGenericStep(); break;
         }
     }
 
-    // --- MINI JEU 1 : LE TAPAGEUR ---
-  function launchArcadeGame1() {
-    gameActive = true; arcadeScore = 0; arcadeLives = 4; isHidden = false;
-    
-    document.getElementById('game-inject').innerHTML = `
-        <div id="arcade-arena" style="background: linear-gradient(to bottom, #000428, #004e92); height: 350px;">
-            <div style="position:absolute; left:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
-            <div style="position:absolute; right:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
-            
-            <div id="building-facade" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:240px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                <div class="window" id="win1"></div>
-                <div class="window" id="win2"></div>
-                <div class="window" id="win3"></div>
-                <div class="window" id="win4"></div>
-            </div>
+    // ==========================================
+    // 4. LES TIROIRS DE JEUX (À REMPLIR)
+    // ==========================================
 
-            <div id="player-container" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); text-align:center;">
-                <div id="player-sprite" style="font-size:3rem; position:relative; left:0; bottom:0; transition: all 0.2s;">
-                    <span id="beer" style="position:absolute; right:-15px; top:10px; font-size:1.5rem;">🍺</span>
-                    🥴
+    // --- JEU 1 : LE TAPAGEUR (Terminé) ---
+    function launchArcadeGame1() {
+        gameActive = true; arcadeScore = 0; arcadeLives = 4; isHidden = false;
+        document.getElementById('game-inject').innerHTML = `
+            <div id="arcade-arena" style="background: linear-gradient(to bottom, #000428, #004e92); height: 350px;">
+                <div style="position:absolute; left:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
+                <div style="position:absolute; right:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
+                <div id="building-facade" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:240px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div class="window" id="win1"></div><div class="window" id="win2"></div>
+                    <div class="window" id="win3"></div><div class="window" id="win4"></div>
                 </div>
-                <div id="bush-sprite" style="font-size:4rem; margin-top:-25px; position:relative; z-index:20;">🌳🌳🌳</div>
+                <div id="player-container" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); text-align:center;">
+                    <div id="player-sprite" style="font-size:3rem; position:relative; transition: all 0.2s;">
+                        <span id="beer" style="position:absolute; right:-15px; top:10px; font-size:1.5rem;">🍺</span>🥴
+                    </div>
+                    <div id="bush-sprite" style="font-size:4rem; margin-top:-25px; position:relative; z-index:20;">🌳🌳🌳</div>
+                </div>
+                <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold; z-index:100; text-shadow: 2px 2px black;">
+                    <span>VIES: <span id="a-lives">4</span></span><span>BRUIT: <span id="a-score">0</span></span>
+                </div>
             </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px; width:100%;">
+                <button class="btn" id="shout-btn" style="background:var(--red); height:70px;" onmousedown="startShout()" onmouseup="stopShout()" ontouchstart="startShout()" ontouchend="stopShout()">📢 CRIER</button>
+                <button class="btn" id="hide-btn" style="background:var(--green); height:70px;" onclick="toggleHide()">🌳 SE CACHER</button>
+            </div>`;
+        const winLoop = setInterval(() => { if(!gameActive) clearInterval(winLoop); else if(Math.random() > 0.5) triggerWinFancy(); }, 1200);
+    }
 
-            <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold; z-index:100; text-shadow: 2px 2px black;">
-                <span>VIES: <span id="a-lives">4</span></span>
-                <span>BRUIT: <span id="a-score">0</span></span>
-            </div>
-        </div>
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px; width:100%;">
-            <button class="btn" id="shout-btn" style="background:var(--red); height:70px; font-size:1.2rem;" 
-                onmousedown="startShout()" onmouseup="stopShout()" 
-                ontouchstart="startShout()" ontouchend="stopShout()">📢 CRIER</button>
-            <button class="btn" id="hide-btn" style="background:var(--green); height:70px; font-size:1.2rem;" 
-                onclick="toggleHide()">🌳 SE CACHER</button>
-        </div>
-    `;
+    function triggerWinFancy() {
+        const id = "win" + (Math.floor(Math.random()*4)+1);
+        const el = document.getElementById(id);
+        if(el.classList.contains('active')) return;
+        const neighbor = Math.random() > 0.5 ? "😡" : "😡🔫";
+        el.innerHTML = `<span style="font-size:1.5rem; display:flex; justify-content:center; align-items:center; height:100%;">${neighbor}</span>`;
+        el.classList.add('active');
+        setTimeout(() => {
+            if(el.classList.contains('active') && !isHidden && gameActive) {
+                arcadeLives--; document.getElementById('a-lives').innerText = arcadeLives;
+                document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
+                setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
+                if(arcadeLives <= 0) finishArcade(false);
+            }
+            el.classList.remove('active'); el.innerHTML = "";
+        }, 900);
+    }
 
-    const winLoop = setInterval(() => { 
-        if(!gameActive) clearInterval(winLoop); 
-        else if(Math.random() > 0.5) triggerWinFancy(); 
-    }, 1200);
-}
+    // --- TIROIRS VIDES (PRÊTS POUR TES CODES) ---
+    function launchArcadeGame2() { setupGenericGame("Étape 2", "Le défi du Pont de Saumur."); }
+    function launchArcadeGame3() { setupGenericGame("Étape 3", "Le secret de la Place St Pierre."); }
+    function launchArcadeGame4() { setupGenericGame("Étape 4", "Défi GPS 4."); }
+    function launchArcadeGame5() { setupGenericGame("Étape 5", "Défi GPS 5."); }
+    function launchArcadeGame6() { setupGenericGame("Étape 6", "Défi GPS 6."); }
+    function launchArcadeGame7() { setupGenericGame("Étape 7", "Défi GPS 7."); }
+    function launchArcadeGame8() { setupGenericGame("Étape 8", "Défi GPS 8."); }
+    function launchArcadeGame9() { setupGenericGame("FIN DE LA QUÊTE", "Tu as terminé les 9 étapes !"); }
 
-function triggerWinFancy() {
-    const id = "win" + (Math.floor(Math.random()*4)+1);
-    const el = document.getElementById(id);
-    if(el.classList.contains('active')) return;
+    function setupGenericGame(titre, texte) {
+        document.getElementById('game-inject').innerHTML = `
+            <div class="parchment">
+                <h2>${titre}</h2><p>${texte}</p>
+                <button class="btn" onclick="arcadeScore=400; finishArcade(true)">RÉUSSIR (TEST)</button>
+            </div>`;
+    }
 
-    // Choix aléatoire du voisin : énervé ou armé
-    const neighbor = Math.random() > 0.5 ? "😡" : "😡🔫";
-    el.innerHTML = `<span style="font-size:1.5rem; display:flex; justify-content:center; align-items:center; height:100%;">${neighbor}</span>`;
-    el.classList.add('active');
+    // ==========================================
+    // 5. FONCTIONS LOGIQUES ET INTERFACE
+    // ==========================================
+    function toggleHide() { isHidden = !isHidden; document.getElementById('player-sprite').classList.toggle('hidden-mode', isHidden); }
+    function startShout() { if(isHidden || !gameActive) return; shoutInt = setInterval(() => { arcadeScore += 10; document.getElementById('a-score').innerText = arcadeScore; if(arcadeScore >= 500) finishArcade(true); }, 100); }
+    function stopShout() { clearInterval(shoutInt); }
 
-    setTimeout(() => {
-        if(el.classList.contains('active') && !isHidden && gameActive) {
-            arcadeLives--;
-            document.getElementById('a-lives').innerText = arcadeLives;
-            // Effet flash rouge sur l'écran
-            document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
-            setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
-            
-            if(arcadeLives <= 0) finishArcade(false);
-        }
-        el.classList.remove('active');
-        el.innerHTML = "";
-    }, 900); // Temps de réaction
-}
+    function finishArcade(win) {
+        gameActive = false;
+        if(win) {
+            document.getElementById('flash-effect').classList.add('active-flash');
+            state.boussoleEnergy += arcadeScore; state.score += arcadeScore; state.step++;
+            setTimeout(() => {
+                document.getElementById('game-screen').style.display = 'none';
+                document.getElementById('flash-effect').classList.remove('active-flash');
+                updateUI(); save();
+                if(state.step >= QUEST_DATA.length) alert("QUÊTE TERMINÉE !");
+            }, 600);
+        } else { alert("TROP DE DÉGÂTS ! RÉESSAIE."); openMiniGame(); }
+    }
 
-    // --- INTERFACE ---
     function toggleCompass() {
-        if(state.boussoleEnergy <= 0 && !isCompassOpen) { alert("Pas d'énergie ! Réussis un défi."); return; }
+        if(state.boussoleEnergy <= 0 && !isCompassOpen) { alert("BATTERIE VIDE ! Réussis un défi pour charger."); return; }
         isCompassOpen = !isCompassOpen;
         document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
         updateUI();
@@ -300,7 +335,7 @@ function triggerWinFancy() {
     function updateUI() {
         document.getElementById('d-score').innerText = state.score;
         document.getElementById('d-energy').innerText = state.boussoleEnergy;
-        document.getElementById('energy-val').innerText = state.boussoleEnergy;
+        document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy / 5); // Affiche un % approximatif
         document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
     }
 
@@ -311,7 +346,7 @@ function triggerWinFancy() {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function resetGame() { if(confirm("Supprimer toute la progression ?")) { localStorage.clear(); location.reload(); } }
+    function resetGame() { if(confirm("Supprimer la progression ?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
