@@ -233,90 +233,105 @@
     // 4. LES TIROIRS DE JEUX (À REMPLIR)
     // ==========================================
 
-    // --- JEU 1 : LE TAPAGEUR (Terminé) ---
- // --- JEU 1 : LE TAPAGEUR (VERSION DUEL FENÊTRE UNIQUE) ---
-    function launchArcadeGame1() {
-        gameActive = true; arcadeScore = 0; arcadeLives = 4; isHidden = false;
-        
-        document.getElementById('game-inject').innerHTML = `
-            <div id="arcade-arena" style="background: #050505; height: 350px; border:2px solid var(--gold); position:relative; overflow:hidden;">
-                <div id="win-main" style="position:absolute; top:40px; left:50%; transform:translateX(-50%); width:120px; height:160px; background:#111; border:4px solid #333; transition: all 0.1s; display:flex; align-items:center; justify-content:center; font-size:4rem;"></div>
-                
-                <div id="player-container" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); text-align:center;">
-                    <div id="player-sprite" style="font-size:4rem; position:relative; transition: all 0.1s;">🥴🎤</div>
-                    <div id="bush-sprite" style="font-size:5rem; margin-top:-40px; position:relative; z-index:20; opacity:0.9;">🌳🌳🌳</div>
-                </div>
 
-                <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold; z-index:100; text-shadow: 2px 2px black;">
-                    <span>VIES: <span id="a-lives">4</span></span><span>SCORE: <span id="a-score">0</span></span>
-                </div>
+// --- JEU 1 : LA CHASSE AUX LUNES (RA) ---
+let moonData = []; // Stocke l'angle de chaque lune
+let videoStream = null;
+
+async function launchArcadeGame1() {
+    gameActive = true; arcadeScore = 0; arcadeLives = 5;
+    moonData = [];
+    
+    // Générer 5 lunes à des angles aléatoires (0-360°)
+    for(let i=0; i<5; i++) {
+        moonData.push({ angle: Math.random() * 360, caught: false, id: i });
+    }
+
+    document.getElementById('game-inject').innerHTML = `
+        <div id="arcade-arena" style="background: #000; height: 450px; position:relative; overflow:hidden; border:2px solid var(--gold);">
+            <video id="webcam" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.6;"></video>
+            
+            <div id="radar" style="position:absolute; top:15px; right:15px; width:60px; height:60px; border:2px solid rgba(212,175,55,0.5); border-radius:50%; background:rgba(0,0,0,0.3);">
+                <div id="radar-needle" style="position:absolute; top:50%; left:50%; width:2px; height:25px; background:var(--gold); transform-origin:bottom; transform:translate(-50%, -100%);"></div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px; width:100%;">
-                <button class="btn" style="background:var(--blue); height:80px; font-size:1.2rem;" onclick="tapNoise()">🎤 CRIER</button>
-                <button class="btn" style="background:var(--green); height:80px; font-size:1.2rem;" 
-                        ontouchstart="setHide(true)" ontouchend="setHide(false)" 
-                        onmousedown="setHide(true)" onmouseup="setHide(false)">🌳 CACHER</button>
-            </div>`;
-        
-        gameLoop1();
-    }
-
-    // --- LOGIQUE DU JEU 1 ---
-    function tapNoise() {
-        if(isHidden || !gameActive) return;
-        arcadeScore += 15;
-        document.getElementById('a-score').innerText = arcadeScore;
-        // Animation de saut
-        const p = document.getElementById('player-sprite');
-        p.style.transform = "translateY(-15px) scale(1.1)";
-        setTimeout(() => p.style.transform = "translateY(0) scale(1)", 100);
-        if(arcadeScore >= 500) finishArcade(true);
-    }
-
-    function setHide(bool) {
-        isHidden = bool;
-        const p = document.getElementById('player-sprite');
-        p.style.opacity = bool ? "0" : "1";
-        p.style.transform = bool ? "translateY(30px)" : "translateY(0)";
-    }
-
-    function gameLoop1() {
-        if(!gameActive) return;
-        
-        // Temps d'attente aléatoire avant que la fenêtre s'allume
-        setTimeout(() => {
-            if(!gameActive) return;
-            const win = document.getElementById('win-main');
+            <div id="sky-view" style="position:absolute; inset:0; pointer-events:none;"></div>
             
-            // 1. LA LUMIÈRE S'ALLUME (Alerte)
-            win.style.background = "#ffea00";
-            win.style.boxShadow = "0 0 40px #ffea00";
-            
-            // 2. LE SMILEY APPARAIT (Attaque) après 600ms
+            <div style="position:absolute; top:10px; left:10px; color:var(--gold); font-weight:bold; z-index:100;">
+                LUNES : <span id="moons-count">0</span> / 5
+            </div>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--gold); margin-top:10px;">Pivote sur toi-même pour trouver les lunes brillantes !</p>
+    `;
+
+    // Activer la caméra
+    try {
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        document.getElementById('webcam').srcObject = videoStream;
+    } catch (err) {
+        alert("Caméra non disponible. Le jeu passera en mode 'Nuit Noire'.");
+    }
+
+    requestAnimationFrame(updateARLoop);
+}
+
+function updateARLoop() {
+    if(!gameActive) return;
+
+    const sky = document.getElementById('sky-view');
+    const radarNeedle = document.getElementById('radar-needle');
+    sky.innerHTML = ""; // On nettoie pour redessiner
+
+    moonData.forEach(moon => {
+        if(moon.caught) return;
+
+        // Calcul de la position relative (Angle téléphone vs Angle Lune)
+        let diff = moon.angle - deviceHeading;
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+
+        // Si la lune est dans le champ de vision (approx 60 deg)
+        if (Math.abs(diff) < 30) {
+            const xPos = (diff + 30) * (window.innerWidth / 60);
+            const moonEl = document.createElement('div');
+            moonEl.innerHTML = "🌙";
+            moonEl.style.cssText = `
+                position:absolute; left:${xPos}px; top:40%; 
+                font-size:4rem; pointer-events:auto; cursor:pointer;
+                filter: drop-shadow(0 0 15px gold); animation: pulse 1s infinite alternate;
+                transform: translate(-50%, -50%);
+            `;
+            moonEl.onclick = () => catchMoon(moon.id);
+            sky.appendChild(moonEl);
+        }
+
+        // Pointer le radar vers la lune la plus proche (optionnel, ici vers la lune 0)
+        if(moon.id === 0) radarNeedle.style.transform = `translate(-50%, -100%) rotate(${diff}deg)`;
+    });
+
+    requestAnimationFrame(updateARLoop);
+}
+
+function catchMoon(id) {
+    const moon = moonData.find(m => m.id === id);
+    if(moon && !moon.caught) {
+        moon.caught = true;
+        arcadeScore += 100;
+        const count = moonData.filter(m => m.caught).length;
+        document.getElementById('moons-count').innerText = count;
+        
+        // Effet visuel
+        document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px gold";
+        setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 300);
+
+        if(count >= 5) {
             setTimeout(() => {
-                if(!gameActive) return;
-                win.innerHTML = "😡";
-                
-                if(!isHidden) {
-                    arcadeLives--;
-                    document.getElementById('a-lives').innerText = arcadeLives;
-                    document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
-                    setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
-                    if(arcadeLives <= 0) finishArcade(false);
-                }
-                
-                // 3. LA LUMIÈRE S'ÉTEINT
-                setTimeout(() => {
-                    win.style.background = "#111";
-                    win.style.boxShadow = "none";
-                    win.innerHTML = "";
-                    gameLoop1(); // On relance la boucle
-                }, 800);
-            }, 600); 
-
-        }, 1000 + Math.random() * 2000);
+                if(videoStream) videoStream.getTracks().forEach(t => t.stop());
+                finishArcade(true);
+            }, 500);
+        }
     }
+}
 
     // --- TIROIRS VIDES (PRÊTS POUR TES CODES) ---
     function launchArcadeGame2() { setupGenericGame("Étape 2", "Le défi du Pont de Saumur."); }
