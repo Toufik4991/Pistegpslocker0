@@ -18,13 +18,13 @@
             border-radius: 25px; position: relative; overflow: hidden;
         }
 
-        /* HALO DE NAVIGATION (Chaud/Froid) */
+        /* HALO DE NAVIGATION */
         #nav-halo {
             position: absolute; inset: 0; border: 4px solid transparent; 
             transition: all 0.4s ease; pointer-events: none; z-index: 5; border-radius: 22px;
         }
 
-        /* BARRE DE NAVIGATION SUPÉRIEURE */
+        /* BARRE SUPÉRIEURE */
         .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2000; justify-content: flex-end; }
         .circle-btn { width: 45px; height: 45px; background: rgba(20,20,20,0.95); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
         
@@ -34,7 +34,7 @@
             padding: 15px; border-radius: 15px; min-width: 180px; backdrop-filter: blur(15px); z-index: 2100;
         }
 
-        /* BOUSSOLE GÉANTE (70% de l'écran) */
+        /* BOUSSOLE GÉANTE */
         #compass-menu { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 75vh; background: rgba(0,0,0,0.95);
@@ -48,12 +48,6 @@
         }
         #needle { width: 10px; height: 80%; background: linear-gradient(to bottom, var(--red) 50%, #eee 50%); position: absolute; border-radius: 10px; }
 
-        /* ÉLÉMENTS GRAPHIQUES JEU 1 */
-        #arcade-arena { width: 100%; height: 350px; border: 2px solid var(--gold); position: relative; overflow: hidden; border-radius: 15px; }
-        .window { width: 30px; height: 45px; background: #111; border: 1px solid #333; transition: 0.2s; }
-        .window.active { background: #ffea00; box-shadow: 0 0 15px #ffea00; }
-        .hidden-mode { transform: translateY(25px); opacity: 0.6; filter: grayscale(1); }
-
         /* INTERFACE GLOBALE */
         .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; }
         .parchment { background: var(--parchment); color: #2c3e50; padding: 20px; border-radius: 15px; width: 85%; min-height: 30vh; display: flex; flex-direction: column; justify-content: space-between; text-align: center;}
@@ -63,7 +57,7 @@
         .flash-white { position: absolute; inset: 0; z-index: 3000; pointer-events: none; background: white; opacity: 0; }
         .active-flash { animation: flashAnim 0.6s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes crazy { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } to { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -121,38 +115,37 @@
 </div>
 
 <script>
-    // ==========================================
-    // 1. CONFIGURATION GPS (LES 9 POINTS)
-    // ==========================================
     const QUEST_DATA = [
-        { lat: 47.25865295, lon: -0.07232092, title: "Le Tapageur" },
-        { lat: 47.25922301, lon: -0.07496422, title: "Point 2" },
-        { lat: 47.25957512, lon: -0.07585838, title: "Point 3" },
-        { lat: 47.25855640, lon: -0.07438732, title: "Point 4" },
-        { lat: 47.25777300, lon: -0.07572423, title: "Point 5" },
-        { lat: 47.25704788, lon: -0.07570440, title: "Point 6" },
-        { lat: 47.25664976, lon: -0.07403862, title: "Point 7" },
-        { lat: 47.25366232, lon: -0.07059828, title: "Point 8" },
-        { lat: 47.25564998, lon: -0.06899643, title: "Point 9" }
+        { lat: 47.25865295634987, lon: -0.07232092747517298, title: "Point 1" },
+        { lat: 47.25922301993599, lon: -0.07496422077580976, title: "Point 2" },
+        { lat: 47.25957512835827, lon: -0.07585838017127501, title: "Point 3" },
+        { lat: 47.25855640527987, lon: -0.07438732146623522, title: "Point 4" },
+        { lat: 47.25777300506129, lon: -0.07572423946778357, title: "Point 5" },
+        { lat: 47.257047880177915, lon: -0.07570440178130702, title: "Point 6" },
+        { lat: 47.2566497660443, lon: -0.0740386275036121, title: "Point 7" },
+        { lat: 47.253662326392785, lon: -0.07059828273820297, title: "Point 8" },
+        { lat: 47.25564998079592, lon: -0.068996433977779, title: "Point 9" }
     ];
 
-    let state = { step: 0, score: 0, boussoleEnergy: 0, name: "", isStarted: false };
+    let state = { step: 0, score: 0, boussoleEnergy: 100, name: "", isStarted: false };
     let deviceHeading = 0;
     let gameActive = false;
     let arcadeScore = 0;
-    let arcadeLives = 4;
-    let isHidden = false;
     let isCompassOpen = false;
-    let shoutInt;
 
-    // ==========================================
-    // 2. MOTEUR GPS & SYSTÈME DE SAUVEGARDE
-    // ==========================================
+    // --- VARIABLES JEU 1 (LUNES) ---
+    let moonData = [];
+    let videoStream = null;
+
+    // --- VARIABLES JEU 2 (FONTAINE) ---
+    let waterRings = [90, 180, 270];
+
     window.onload = () => {
-        const saved = localStorage.getItem('saumur_quest_v3');
+        const saved = localStorage.getItem('saumur_quest_final');
         if(saved) { state = JSON.parse(saved); if(state.isStarted) resumeGame(); }
     };
-    function save() { localStorage.setItem('saumur_quest_v3', JSON.stringify(state)); }
+
+    function save() { localStorage.setItem('saumur_quest_final', JSON.stringify(state)); }
 
     function requestPermissions() {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -171,15 +164,15 @@
         document.getElementById('compass-btn').style.display = 'flex';
         document.getElementById('d-name').innerText = state.name;
         navigator.geolocation.watchPosition(handleGPS, null, { enableHighAccuracy: true });
+        updateUI();
         
-        // Système de consommation de la boussole (Temps réel)
         setInterval(() => {
             if(isCompassOpen && state.boussoleEnergy > 0) {
-                state.boussoleEnergy -= 2; 
+                state.boussoleEnergy -= 1; 
                 if(state.boussoleEnergy <= 0) { state.boussoleEnergy = 0; toggleCompass(); }
                 updateUI();
             }
-        }, 500);
+        }, 1000);
     }
 
     function handleGPS(pos) {
@@ -187,177 +180,117 @@
         const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, target.lat, target.lon);
         const halo = document.getElementById('nav-halo');
         
-        // Gestion du Halo de couleur
         let color = "var(--red)";
-        if (dist < 5) color = "var(--blue)";
-        else if (dist < 20) color = "var(--green)";
-        else if (dist < 60) color = "var(--orange)";
+        if (dist < 8) color = "var(--blue)";
+        else if (dist < 25) color = "var(--green)";
+        else if (dist < 70) color = "var(--orange)";
 
-        halo.style.borderWidth = dist < 60 ? "20px" : "4px";
+        halo.style.borderWidth = dist < 70 ? "20px" : "4px";
         halo.style.borderColor = color;
         document.getElementById('status-msg').innerText = "DISTANCE : " + Math.round(dist) + "m";
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
-        document.getElementById('action-zone').style.display = dist < 25 ? 'block' : 'none';
+        document.getElementById('action-zone').style.display = dist < 30 ? 'block' : 'none';
 
-        // Gestion de l'aiguille de boussole
         const needle = document.getElementById('needle');
-        if(dist < 15) { needle.style.animation = "crazy 0.4s linear infinite"; }
-        else {
-            needle.style.animation = "none";
-            const targetAngle = Math.atan2(target.lon - pos.coords.longitude, target.lat - pos.coords.latitude) * (180 / Math.PI);
-            needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
-        }
+        const targetAngle = Math.atan2(target.lon - pos.coords.longitude, target.lat - pos.coords.latitude) * (180 / Math.PI);
+        needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
     }
 
-    // ==========================================
-    // 3. AIGUILLAGE DES MINI-JEUX (LE TRIEUR)
-    // ==========================================
     function openMiniGame() {
         document.getElementById('game-screen').style.display = 'flex';
         document.getElementById('game-inject').innerHTML = ""; 
-        switch(state.step) {
-            case 0: launchArcadeGame1(); break;
-            case 1: launchArcadeGame2(); break;
-            case 2: launchArcadeGame3(); break;
-            case 3: launchArcadeGame4(); break;
-            case 4: launchArcadeGame5(); break;
-            case 5: launchArcadeGame6(); break;
-            case 6: launchArcadeGame7(); break;
-            case 7: launchArcadeGame8(); break;
-            case 8: launchArcadeGame9(); break;
-            default: launchGenericStep(); break;
-        }
+        if(state.step === 0) launchArcadeGame1();
+        else if(state.step === 1) launchArcadeGame2();
+        else setupGenericGame(`Étape ${state.step + 1}`, "Défi en cours de création...");
     }
 
     // ==========================================
-    // 4. LES TIROIRS DE JEUX (À REMPLIR)
+    // JEU 1 : CHASSE AUX LUNES (RA)
     // ==========================================
+    async function launchArcadeGame1() {
+        gameActive = true; arcadeScore = 0; moonData = [];
+        for(let i=0; i<5; i++) moonData.push({ angle: Math.random() * 360, caught: false, id: i });
 
-
-// --- JEU 1 : LA CHASSE AUX LUNES (RA) ---
-let moonData = []; // Stocke l'angle de chaque lune
-let videoStream = null;
-
-async function launchArcadeGame1() {
-    gameActive = true; arcadeScore = 0; arcadeLives = 5;
-    moonData = [];
-    
-    // Générer 5 lunes à des angles aléatoires (0-360°)
-    for(let i=0; i<5; i++) {
-        moonData.push({ angle: Math.random() * 360, caught: false, id: i });
-    }
-
-    document.getElementById('game-inject').innerHTML = `
-        <div id="arcade-arena" style="background: #000; height: 450px; position:relative; overflow:hidden; border:2px solid var(--gold);">
-            <video id="webcam" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.6;"></video>
-            
-            <div id="radar" style="position:absolute; top:15px; right:15px; width:60px; height:60px; border:2px solid rgba(212,175,55,0.5); border-radius:50%; background:rgba(0,0,0,0.3);">
-                <div id="radar-needle" style="position:absolute; top:50%; left:50%; width:2px; height:25px; background:var(--gold); transform-origin:bottom; transform:translate(-50%, -100%);"></div>
-            </div>
-
-            <div id="sky-view" style="position:absolute; inset:0; pointer-events:none;"></div>
-            
-            <div style="position:absolute; top:10px; left:10px; color:var(--gold); font-weight:bold; z-index:100;">
-                LUNES : <span id="moons-count">0</span> / 5
-            </div>
-        </div>
-        <p style="text-align:center; font-size:0.8rem; color:var(--gold); margin-top:10px;">Pivote sur toi-même pour trouver les lunes brillantes !</p>
-    `;
-
-    // Activer la caméra
-    try {
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        document.getElementById('webcam').srcObject = videoStream;
-    } catch (err) {
-        alert("Caméra non disponible. Le jeu passera en mode 'Nuit Noire'.");
-    }
-
-    requestAnimationFrame(updateARLoop);
-}
-
-function updateARLoop() {
-    if(!gameActive) return;
-
-    const sky = document.getElementById('sky-view');
-    const radarNeedle = document.getElementById('radar-needle');
-    sky.innerHTML = ""; // On nettoie pour redessiner
-
-    moonData.forEach(moon => {
-        if(moon.caught) return;
-
-        // Calcul de la position relative (Angle téléphone vs Angle Lune)
-        let diff = moon.angle - deviceHeading;
-        if (diff > 180) diff -= 360;
-        if (diff < -180) diff += 360;
-
-        // Si la lune est dans le champ de vision (approx 60 deg)
-        if (Math.abs(diff) < 30) {
-            const xPos = (diff + 30) * (window.innerWidth / 60);
-            const moonEl = document.createElement('div');
-            moonEl.innerHTML = "🌙";
-            moonEl.style.cssText = `
-                position:absolute; left:${xPos}px; top:40%; 
-                font-size:4rem; pointer-events:auto; cursor:pointer;
-                filter: drop-shadow(0 0 15px gold); animation: pulse 1s infinite alternate;
-                transform: translate(-50%, -50%);
-            `;
-            moonEl.onclick = () => catchMoon(moon.id);
-            sky.appendChild(moonEl);
-        }
-
-        // Pointer le radar vers la lune la plus proche (optionnel, ici vers la lune 0)
-        if(moon.id === 0) radarNeedle.style.transform = `translate(-50%, -100%) rotate(${diff}deg)`;
-    });
-
-    requestAnimationFrame(updateARLoop);
-}
-
-function catchMoon(id) {
-    const moon = moonData.find(m => m.id === id);
-    if(moon && !moon.caught) {
-        moon.caught = true;
-        arcadeScore += 100;
-        const count = moonData.filter(m => m.caught).length;
-        document.getElementById('moons-count').innerText = count;
-        
-        // Effet visuel
-        document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px gold";
-        setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 300);
-
-        if(count >= 5) {
-            setTimeout(() => {
-                if(videoStream) videoStream.getTracks().forEach(t => t.stop());
-                finishArcade(true);
-            }, 500);
-        }
-    }
-}
-
-    // --- TIROIRS VIDES (PRÊTS POUR TES CODES) ---
-    function launchArcadeGame2() { setupGenericGame("Étape 2", "Le défi du Pont de Saumur."); }
-    function launchArcadeGame3() { setupGenericGame("Étape 3", "Le secret de la Place St Pierre."); }
-    function launchArcadeGame4() { setupGenericGame("Étape 4", "Défi GPS 4."); }
-    function launchArcadeGame5() { setupGenericGame("Étape 5", "Défi GPS 5."); }
-    function launchArcadeGame6() { setupGenericGame("Étape 6", "Défi GPS 6."); }
-    function launchArcadeGame7() { setupGenericGame("Étape 7", "Défi GPS 7."); }
-    function launchArcadeGame8() { setupGenericGame("Étape 8", "Défi GPS 8."); }
-    function launchArcadeGame9() { setupGenericGame("FIN DE LA QUÊTE", "Tu as terminé les 9 étapes !"); }
-
-    function setupGenericGame(titre, texte) {
         document.getElementById('game-inject').innerHTML = `
-            <div class="parchment">
-                <h2>${titre}</h2><p>${texte}</p>
-                <button class="btn" onclick="arcadeScore=400; finishArcade(true)">RÉUSSIR (TEST)</button>
+            <div id="arcade-arena" style="background: #000; height: 450px; position:relative; overflow:hidden; border:2px solid var(--gold); border-radius:15px;">
+                <video id="webcam" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.6;"></video>
+                <div id="radar" style="position:absolute; top:15px; right:15px; width:60px; height:60px; border:2px solid rgba(212,175,55,0.5); border-radius:50%; background:rgba(0,0,0,0.3);">
+                    <div id="radar-needle" style="position:absolute; top:50%; left:50%; width:2px; height:25px; background:var(--gold); transform-origin:bottom;"></div>
+                </div>
+                <div id="sky-view" style="position:absolute; inset:0; pointer-events:none;"></div>
+                <div style="position:absolute; top:10px; left:10px; color:var(--gold); font-weight:bold;">LUNES : <span id="moons-count">0</span> / 5</div>
             </div>`;
+
+        try {
+            videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            document.getElementById('webcam').srcObject = videoStream;
+        } catch (err) { console.log("Caméra bloquée"); }
+        requestAnimationFrame(updateARLoop);
+    }
+
+    function updateARLoop() {
+        if(!gameActive || state.step !== 0) return;
+        const sky = document.getElementById('sky-view');
+        sky.innerHTML = "";
+        moonData.forEach(moon => {
+            if(moon.caught) return;
+            let diff = moon.angle - deviceHeading;
+            if (diff > 180) diff -= 360; if (diff < -180) diff += 360;
+            if (Math.abs(diff) < 30) {
+                const xPos = (diff + 30) * (window.innerWidth / 60);
+                const moonEl = document.createElement('div');
+                moonEl.innerHTML = "🌙";
+                moonEl.style.cssText = `position:absolute; left:${xPos}px; top:40%; font-size:4rem; pointer-events:auto; cursor:pointer; filter: drop-shadow(0 0 15px gold); animation: pulse 1s infinite alternate; transform: translate(-50%, -50%);`;
+                moonEl.onclick = () => {
+                    moon.caught = true; arcadeScore += 100;
+                    const count = moonData.filter(m => m.caught).length;
+                    document.getElementById('moons-count').innerText = count;
+                    if(count >= 5) { if(videoStream) videoStream.getTracks().forEach(t => t.stop()); finishArcade(true); }
+                };
+                sky.appendChild(moonEl);
+            }
+        });
+        requestAnimationFrame(updateARLoop);
     }
 
     // ==========================================
-    // 5. FONCTIONS LOGIQUES ET INTERFACE
+    // JEU 2 : FONTAINE MAGIQUE
     // ==========================================
-    function toggleHide() { isHidden = !isHidden; document.getElementById('player-sprite').classList.toggle('hidden-mode', isHidden); }
-    function startShout() { if(isHidden || !gameActive) return; shoutInt = setInterval(() => { arcadeScore += 10; document.getElementById('a-score').innerText = arcadeScore; if(arcadeScore >= 500) finishArcade(true); }, 100); }
-    function stopShout() { clearInterval(shoutInt); }
+    function launchArcadeGame2() {
+        gameActive = true; waterRings = [90, 180, 270];
+        document.getElementById('game-inject').innerHTML = `
+            <div id="arcade-arena" style="background: #0f172a; height: 400px; display:flex; align-items:center; justify-content:center; flex-direction:column; border:2px solid var(--blue); border-radius:15px;">
+                <h2 style="color:var(--blue); text-shadow: 0 0 10px #00d4ff;">LA FONTAINE</h2>
+                <div id="fountain-container" style="position:relative; width:220px; height:220px; background:#1e293b; border-radius:50%; border:4px solid #334155;">
+                    <div id="w-ring-0" onclick="rotateFountain(0)" style="position:absolute; inset:10px; border:10px solid #475569; border-radius:50%; transition:0.4s; cursor:pointer;">
+                        <div style="position:absolute; top:-10px; left:50%; width:10px; height:20px; background:var(--blue); transform:translateX(-50%);"></div>
+                    </div>
+                    <div id="w-ring-1" onclick="rotateFountain(1)" style="position:absolute; inset:55px; border:10px solid #334155; border-radius:50%; transition:0.4s; cursor:pointer;">
+                        <div style="position:absolute; top:-10px; left:50%; width:10px; height:20px; background:var(--blue); transform:translateX(-50%);"></div>
+                    </div>
+                    <div id="w-center" style="position:absolute; inset:90px; background:#0f172a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">💧</div>
+                </div>
+            </div>`;
+        updateFountain();
+    }
 
+    function rotateFountain(idx) {
+        waterRings[idx] = (waterRings[idx] + 90) % 360;
+        updateFountain();
+        if(waterRings[0] === 0 && waterRings[1] === 0) {
+            gameActive = false; arcadeScore = 400;
+            document.getElementById('w-center').style.background = "var(--blue)";
+            setTimeout(() => finishArcade(true), 1000);
+        }
+    }
+
+    function updateFountain() {
+        waterRings.forEach((a, i) => { if(document.getElementById(`w-ring-${i}`)) document.getElementById(`w-ring-${i}`).style.transform = `rotate(${a}deg)`; });
+    }
+
+    // ==========================================
+    // SYSTÈME DE SORTIE ET UI
+    // ==========================================
     function finishArcade(win) {
         gameActive = false;
         if(win) {
@@ -367,16 +300,17 @@ function catchMoon(id) {
                 document.getElementById('game-screen').style.display = 'none';
                 document.getElementById('flash-effect').classList.remove('active-flash');
                 updateUI(); save();
-                if(state.step >= QUEST_DATA.length) alert("QUÊTE TERMINÉE !");
             }, 600);
-        } else { alert("TROP DE DÉGÂTS ! RÉESSAIE."); openMiniGame(); }
+        }
+    }
+
+    function setupGenericGame(t, txt) {
+        document.getElementById('game-inject').innerHTML = `<div class="parchment"><h2>${t}</h2><p>${txt}</p><button class="btn" onclick="arcadeScore=200; finishArcade(true)">SUIVANT</button></div>`;
     }
 
     function toggleCompass() {
-        if(state.boussoleEnergy <= 0 && !isCompassOpen) { alert("BATTERIE VIDE ! Réussis un défi pour charger."); return; }
         isCompassOpen = !isCompassOpen;
         document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
-        updateUI();
     }
 
     function toggleMenu(id) {
@@ -389,7 +323,7 @@ function catchMoon(id) {
     function updateUI() {
         document.getElementById('d-score').innerText = state.score;
         document.getElementById('d-energy').innerText = state.boussoleEnergy;
-        document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy / 5); // Affiche un % approximatif
+        document.getElementById('energy-val').innerText = Math.min(100, Math.round(state.boussoleEnergy / 5));
         document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
     }
 
@@ -400,7 +334,7 @@ function catchMoon(id) {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    function resetGame() { if(confirm("Supprimer la progression ?")) { localStorage.clear(); location.reload(); } }
+    function resetGame() { if(confirm("Effacer tout ?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
