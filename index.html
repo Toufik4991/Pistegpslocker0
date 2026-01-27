@@ -234,49 +234,88 @@
     // ==========================================
 
     // --- JEU 1 : LE TAPAGEUR (Terminé) ---
+ // --- JEU 1 : LE TAPAGEUR (VERSION DUEL FENÊTRE UNIQUE) ---
     function launchArcadeGame1() {
         gameActive = true; arcadeScore = 0; arcadeLives = 4; isHidden = false;
+        
         document.getElementById('game-inject').innerHTML = `
-            <div id="arcade-arena" style="background: linear-gradient(to bottom, #000428, #004e92); height: 350px;">
-                <div style="position:absolute; left:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
-                <div style="position:absolute; right:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
-                <div id="building-facade" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:240px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div class="window" id="win1"></div><div class="window" id="win2"></div>
-                    <div class="window" id="win3"></div><div class="window" id="win4"></div>
-                </div>
+            <div id="arcade-arena" style="background: #050505; height: 350px; border:2px solid var(--gold); position:relative; overflow:hidden;">
+                <div id="win-main" style="position:absolute; top:40px; left:50%; transform:translateX(-50%); width:120px; height:160px; background:#111; border:4px solid #333; transition: all 0.1s; display:flex; align-items:center; justify-content:center; font-size:4rem;"></div>
+                
                 <div id="player-container" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); text-align:center;">
-                    <div id="player-sprite" style="font-size:3rem; position:relative; transition: all 0.2s;">
-                        <span id="beer" style="position:absolute; right:-15px; top:10px; font-size:1.5rem;">🍺</span>🥴
-                    </div>
-                    <div id="bush-sprite" style="font-size:4rem; margin-top:-25px; position:relative; z-index:20;">🌳🌳🌳</div>
+                    <div id="player-sprite" style="font-size:4rem; position:relative; transition: all 0.1s;">🥴🎤</div>
+                    <div id="bush-sprite" style="font-size:5rem; margin-top:-40px; position:relative; z-index:20; opacity:0.9;">🌳🌳🌳</div>
                 </div>
+
                 <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold; z-index:100; text-shadow: 2px 2px black;">
-                    <span>VIES: <span id="a-lives">4</span></span><span>BRUIT: <span id="a-score">0</span></span>
+                    <span>VIES: <span id="a-lives">4</span></span><span>SCORE: <span id="a-score">0</span></span>
                 </div>
             </div>
+
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px; width:100%;">
-                <button class="btn" id="shout-btn" style="background:var(--red); height:70px;" onmousedown="startShout()" onmouseup="stopShout()" ontouchstart="startShout()" ontouchend="stopShout()">📢 CRIER</button>
-                <button class="btn" id="hide-btn" style="background:var(--green); height:70px;" onclick="toggleHide()">🌳 SE CACHER</button>
+                <button class="btn" style="background:var(--blue); height:80px; font-size:1.2rem;" onclick="tapNoise()">🎤 CRIER</button>
+                <button class="btn" style="background:var(--green); height:80px; font-size:1.2rem;" 
+                        ontouchstart="setHide(true)" ontouchend="setHide(false)" 
+                        onmousedown="setHide(true)" onmouseup="setHide(false)">🌳 CACHER</button>
             </div>`;
-        const winLoop = setInterval(() => { if(!gameActive) clearInterval(winLoop); else if(Math.random() > 0.5) triggerWinFancy(); }, 1200);
+        
+        gameLoop1();
     }
 
-    function triggerWinFancy() {
-        const id = "win" + (Math.floor(Math.random()*4)+1);
-        const el = document.getElementById(id);
-        if(el.classList.contains('active')) return;
-        const neighbor = Math.random() > 0.5 ? "😡" : "😡🔫";
-        el.innerHTML = `<span style="font-size:1.5rem; display:flex; justify-content:center; align-items:center; height:100%;">${neighbor}</span>`;
-        el.classList.add('active');
+    // --- LOGIQUE DU JEU 1 ---
+    function tapNoise() {
+        if(isHidden || !gameActive) return;
+        arcadeScore += 15;
+        document.getElementById('a-score').innerText = arcadeScore;
+        // Animation de saut
+        const p = document.getElementById('player-sprite');
+        p.style.transform = "translateY(-15px) scale(1.1)";
+        setTimeout(() => p.style.transform = "translateY(0) scale(1)", 100);
+        if(arcadeScore >= 500) finishArcade(true);
+    }
+
+    function setHide(bool) {
+        isHidden = bool;
+        const p = document.getElementById('player-sprite');
+        p.style.opacity = bool ? "0" : "1";
+        p.style.transform = bool ? "translateY(30px)" : "translateY(0)";
+    }
+
+    function gameLoop1() {
+        if(!gameActive) return;
+        
+        // Temps d'attente aléatoire avant que la fenêtre s'allume
         setTimeout(() => {
-            if(el.classList.contains('active') && !isHidden && gameActive) {
-                arcadeLives--; document.getElementById('a-lives').innerText = arcadeLives;
-                document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
-                setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
-                if(arcadeLives <= 0) finishArcade(false);
-            }
-            el.classList.remove('active'); el.innerHTML = "";
-        }, 900);
+            if(!gameActive) return;
+            const win = document.getElementById('win-main');
+            
+            // 1. LA LUMIÈRE S'ALLUME (Alerte)
+            win.style.background = "#ffea00";
+            win.style.boxShadow = "0 0 40px #ffea00";
+            
+            // 2. LE SMILEY APPARAIT (Attaque) après 600ms
+            setTimeout(() => {
+                if(!gameActive) return;
+                win.innerHTML = "😡";
+                
+                if(!isHidden) {
+                    arcadeLives--;
+                    document.getElementById('a-lives').innerText = arcadeLives;
+                    document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
+                    setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
+                    if(arcadeLives <= 0) finishArcade(false);
+                }
+                
+                // 3. LA LUMIÈRE S'ÉTEINT
+                setTimeout(() => {
+                    win.style.background = "#111";
+                    win.style.boxShadow = "none";
+                    win.innerHTML = "";
+                    gameLoop1(); // On relance la boucle
+                }, 800);
+            }, 600); 
+
+        }, 1000 + Math.random() * 2000);
     }
 
     // --- TIROIRS VIDES (PRÊTS POUR TES CODES) ---
