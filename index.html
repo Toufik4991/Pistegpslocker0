@@ -213,72 +213,74 @@
     }
 
     // --- MINI JEU 1 : LE TAPAGEUR ---
-    let arcadeScore = 0, arcadeLives = 4, isHidden = false, playerPos = 50, gameActive = false, shoutInt;
+  function launchArcadeGame1() {
+    gameActive = true; arcadeScore = 0; arcadeLives = 4; isHidden = false;
+    
+    document.getElementById('game-inject').innerHTML = `
+        <div id="arcade-arena" style="background: linear-gradient(to bottom, #000428, #004e92); height: 350px;">
+            <div style="position:absolute; left:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
+            <div style="position:absolute; right:20px; bottom:60px; font-size:2rem; filter:drop-shadow(0 0 10px yellow);">🏮</div>
+            
+            <div id="building-facade" style="position:absolute; top:20px; left:50%; transform:translateX(-50%); width:240px; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                <div class="window" id="win1"></div>
+                <div class="window" id="win2"></div>
+                <div class="window" id="win3"></div>
+                <div class="window" id="win4"></div>
+            </div>
 
-    function launchArcadeGame1() {
-        gameActive = true; arcadeScore = 0; arcadeLives = 4;
-        document.getElementById('game-inject').innerHTML = `
-            <div id="arcade-arena">
-                <div class="window" style="top:20px; left:20%;" id="win1"></div>
-                <div class="window" style="top:20px; left:70%;" id="win2"></div>
-                <div class="window" style="top:100px; left:45%;" id="win3"></div>
-                <div id="player-sprite">🥴</div>
-                <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold;">
-                    <span>VIES: <span id="a-lives">4</span></span>
-                    <span>BRUIT: <span id="a-score">0</span></span>
+            <div id="player-container" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); text-align:center;">
+                <div id="player-sprite" style="font-size:3rem; position:relative; left:0; bottom:0; transition: all 0.2s;">
+                    <span id="beer" style="position:absolute; right:-15px; top:10px; font-size:1.5rem;">🍺</span>
+                    🥴
                 </div>
+                <div id="bush-sprite" style="font-size:4rem; margin-top:-25px; position:relative; z-index:20;">🌳🌳🌳</div>
             </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px; width:100%;">
-                <button class="btn" onclick="moveArcade(-15)">⬅️ GAUCHE</button>
-                <button class="btn" onclick="moveArcade(15)">DROITE ➡️</button>
-                <button class="btn" style="background:var(--red)" onmousedown="startShout()" onmouseup="stopShout()" ontouchstart="startShout()" ontouchend="stopShout()">📢 CRIER</button>
-                <button class="btn" style="background:var(--green)" onclick="toggleHide()">🌳 CACHER</button>
+
+            <div style="position:absolute; top:10px; width:100%; display:flex; justify-content:space-around; color:var(--gold); font-weight:bold; z-index:100; text-shadow: 2px 2px black;">
+                <span>VIES: <span id="a-lives">4</span></span>
+                <span>BRUIT: <span id="a-score">0</span></span>
             </div>
-        `;
-        const winLoop = setInterval(() => { if(!gameActive) clearInterval(winLoop); else if(Math.random() > 0.6) triggerWin(); }, 1000);
-    }
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px; width:100%;">
+            <button class="btn" id="shout-btn" style="background:var(--red); height:70px; font-size:1.2rem;" 
+                onmousedown="startShout()" onmouseup="stopShout()" 
+                ontouchstart="startShout()" ontouchend="stopShout()">📢 CRIER</button>
+            <button class="btn" id="hide-btn" style="background:var(--green); height:70px; font-size:1.2rem;" 
+                onclick="toggleHide()">🌳 SE CACHER</button>
+        </div>
+    `;
 
-    function moveArcade(d) { playerPos = Math.max(10, Math.min(85, playerPos + d)); document.getElementById('player-sprite').style.left = playerPos + "%"; }
-    function toggleHide() { isHidden = !isHidden; document.getElementById('player-sprite').classList.toggle('hidden-mode', isHidden); }
-    function startShout() { if(isHidden || !gameActive) return; shoutInt = setInterval(() => { arcadeScore += 10; document.getElementById('a-score').innerText = arcadeScore; if(arcadeScore >= 500) finishArcade(true); }, 100); }
-    function stopShout() { clearInterval(shoutInt); }
-    function triggerWin() {
-        const id = "win" + (Math.floor(Math.random()*3)+1);
-        const el = document.getElementById(id);
-        el.classList.add('active');
-        setTimeout(() => {
-            if(el.classList.contains('active') && !isHidden && gameActive) {
-                arcadeLives--; document.getElementById('a-lives').innerText = arcadeLives;
-                if(arcadeLives <= 0) finishArcade(false);
-            }
-            el.classList.remove('active');
-        }, 850);
-    }
+    const winLoop = setInterval(() => { 
+        if(!gameActive) clearInterval(winLoop); 
+        else if(Math.random() > 0.5) triggerWinFancy(); 
+    }, 1200);
+}
 
-    function finishArcade(win) {
-        gameActive = false;
-        if(win) {
-            document.getElementById('flash-effect').classList.add('active-flash');
-            state.boussoleEnergy += arcadeScore;
-            state.score += arcadeScore;
-            state.step++;
-            setTimeout(() => {
-                document.getElementById('game-screen').style.display = 'none';
-                document.getElementById('flash-effect').classList.remove('active-flash');
-                updateUI(); save();
-                alert("DÉFI RÉUSSI ! Tu as gagné " + arcadeScore + " points de boussole.");
-            }, 600);
-        } else { alert("TROP DE DÉGÂTS ! Réessaie."); launchArcadeGame1(); }
-    }
+function triggerWinFancy() {
+    const id = "win" + (Math.floor(Math.random()*4)+1);
+    const el = document.getElementById(id);
+    if(el.classList.contains('active')) return;
 
-    function launchGenericStep() {
-        document.getElementById('game-inject').innerHTML = `
-            <div class="parchment">
-                <h2>Étape ${state.step + 1}</h2>
-                <p>Contenu du jeu à venir...</p>
-                <button class="btn" onclick="finishArcade(true)">VALIDER (TEST)</button>
-            </div>`;
-    }
+    // Choix aléatoire du voisin : énervé ou armé
+    const neighbor = Math.random() > 0.5 ? "😡" : "😡🔫";
+    el.innerHTML = `<span style="font-size:1.5rem; display:flex; justify-content:center; align-items:center; height:100%;">${neighbor}</span>`;
+    el.classList.add('active');
+
+    setTimeout(() => {
+        if(el.classList.contains('active') && !isHidden && gameActive) {
+            arcadeLives--;
+            document.getElementById('a-lives').innerText = arcadeLives;
+            // Effet flash rouge sur l'écran
+            document.getElementById('arcade-arena').style.boxShadow = "inset 0 0 50px red";
+            setTimeout(() => document.getElementById('arcade-arena').style.boxShadow = "none", 200);
+            
+            if(arcadeLives <= 0) finishArcade(false);
+        }
+        el.classList.remove('active');
+        el.innerHTML = "";
+    }, 900); // Temps de réaction
+}
 
     // --- INTERFACE ---
     function toggleCompass() {
