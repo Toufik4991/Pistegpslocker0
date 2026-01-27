@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🌝 ☝️ 🧭</title>
+    <title>🌝 🧭 ⚙️</title>
     <style>
         :root { 
             --gold: #d4af37; --bg: #0a0a0a; --parchment: #fdfaf0;
@@ -16,46 +16,61 @@
             width: 95%; max-width: 450px; height: 85vh;
             background: var(--bg); border: 2px solid var(--gold);
             border-radius: 25px; position: relative; overflow: hidden;
+            transition: border-color 0.4s ease;
         }
 
         #nav-halo {
             position: absolute; inset: 0; border: 0px solid transparent; 
-            transition: all 0.5s ease; pointer-events: none; z-index: 5; border-radius: 22px;
+            transition: all 0.4s ease; pointer-events: none; z-index: 5; border-radius: 22px;
         }
 
-        /* DASHBOARDS (Profil & Boussole) */
-        .ui-wrapper { position: absolute; z-index: 100; }
-        #profile-wrapper { top: 15px; right: 15px; }
-        #compass-wrapper { bottom: 15px; right: 15px; }
+        /* BARRE DE NAVIGATION HAUTE */
+        .top-bar { 
+            position: absolute; top: 15px; left: 15px; right: 15px; 
+            display: flex; gap: 10px; z-index: 100; justify-content: flex-end;
+        }
 
-        .circle-btn { width: 45px; height: 45px; background: rgba(30,30,30,0.9); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; }
-        
+        .circle-btn { 
+            width: 45px; height: 45px; background: rgba(20,20,20,0.9); 
+            border: 1px solid var(--gold); border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
         .menu-content {
-            display: none; position: absolute; right: 0;
-            background: rgba(10,10,10,0.95); border: 1px solid var(--gold);
-            padding: 15px; border-radius: 12px; min-width: 160px; text-align: right;
-            backdrop-filter: blur(10px);
+            display: none; position: absolute; top: 60px; right: 0;
+            background: rgba(10,10,10,0.98); border: 1px solid var(--gold);
+            padding: 15px; border-radius: 15px; min-width: 180px;
+            backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
-        #dashboard { top: 55px; }
-        #compass-menu { bottom: 55px; height: 120px; text-align: center; }
 
-        /* BOUSSOLE */
-        #compass-tool { 
-            width: 80px; height: 80px; border: 2px solid var(--gold); border-radius: 50%; 
-            position: relative; margin: 5px auto; background: radial-gradient(circle, #1a1a1a, #000);
+        /* MENU BOUSSOLE (40% ÉCRAN) */
+        #compass-menu { 
+            width: 100%; height: 40vh; left: 0; right: 0; top: 65px;
+            flex-direction: column; align-items: center; justify-content: center;
+            border-left: none; border-right: none;
+        }
+
+        #compass-disk { 
+            width: 180px; height: 180px; border: 4px solid var(--gold); border-radius: 50%; 
+            position: relative; background: radial-gradient(circle, #222, #000);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            display: flex; align-items: center; justify-content: center;
+            transition: border-color 0.4s ease;
         }
         #needle { 
-            width: 4px; height: 80%; background: linear-gradient(to bottom, var(--red) 50%, #fff 50%); 
-            position: absolute; left: 48%; top: 10%; transition: transform 0.2s ease-out; 
+            width: 6px; height: 80%; background: linear-gradient(to bottom, var(--red) 50%, #eee 50%); 
+            position: absolute; border-radius: 10px; transition: transform 0.2s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         }
 
-        /* UI GENERALE */
+        /* TEXTES ET BOUTONS */
+        .btn-opt { background: #222; color: var(--gold); border: 1px solid var(--gold); padding: 8px; margin: 5px 0; width: 100%; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-        .parchment { background: var(--parchment); color: #2c3e50; padding: 25px; border-radius: 15px; width: 85%; min-height: 40vh; box-shadow: 0 10px 30px rgba(0,0,0,0.6); display: flex; flex-direction: column; justify-content: space-between; }
-        .btn { background: var(--gold); color: black; border: none; padding: 15px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; text-transform: uppercase; align-self: center; }
-        #status-msg { position: absolute; bottom: 110px; width: 100%; text-align: center; color: var(--gold); font-size: 0.8rem; font-style: italic; z-index: 10; }
+        .parchment { background: var(--parchment); color: #2c3e50; padding: 25px; border-radius: 15px; width: 85%; min-height: 40vh; display: flex; flex-direction: column; justify-content: space-between; }
+        .btn { background: var(--gold); color: black; border: none; padding: 15px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        #status-msg { position: absolute; bottom: 40px; width: 100%; text-align: center; color: var(--gold); font-size: 0.7rem; letter-spacing: 1px; }
         
-        @keyframes crazy { 100% { transform: rotate(360deg); } }
+        @keyframes crazy { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -63,46 +78,53 @@
 <div id="game-container">
     <div id="nav-halo"></div>
 
-    <div id="profile-wrapper" class="ui-wrapper">
-        <div class="circle-btn" onclick="toggleMenu('dashboard')">👤</div>
-        <div id="dashboard" class="menu-content">
-            <div id="d-name" style="color:var(--gold); font-weight:bold;">---</div>
-            <hr style="border:0; border-top:1px solid #333;">
-            <div style="font-size:0.85rem;">Temps: <span id="d-timer">00:00</span></div>
-            <div style="font-size:0.85rem;">Score: <span id="d-score">0</span> pts</div>
-            <div style="font-size:0.85rem;">Étape: <span id="d-step">1 / 9</span></div>
-            <button onclick="resetGame()" style="background:none; border:none; color:var(--red); font-size:0.6rem; cursor:pointer; margin-top:10px;">Réinitialiser</button>
-        </div>
-    </div>
-
-    <div id="compass-wrapper" class="ui-wrapper">
+    <div class="top-bar">
         <div id="compass-btn" class="circle-btn" onclick="toggleMenu('compass-menu')" style="display:none;">🧭</div>
+        <div id="profile-btn" class="circle-btn" onclick="toggleMenu('dashboard')">👤</div>
+        <div id="options-btn" class="circle-btn" onclick="toggleMenu('options-menu')">⚙️</div>
+
+        <div id="dashboard" class="menu-content">
+            <div id="d-name" style="color:var(--gold); font-weight:bold; font-size: 1.2rem;">---</div>
+            <div style="font-size:0.85rem; margin-top:10px;">🏆 Score: <span id="d-score">0</span></div>
+            <div style="font-size:0.85rem;">⏳ Temps: <span id="d-timer">00:00</span></div>
+            <div style="font-size:0.85rem;">📍 Étape: <span id="d-step">1 / 9</span></div>
+        </div>
+
+        <div id="options-menu" class="menu-content">
+            <div style="color:var(--gold); font-weight:bold; margin-bottom:10px; text-align:center;">OPTIONS</div>
+            <button class="btn-opt" onclick="retryStep()">Recommencer le défi</button>
+            <button class="btn-opt" onclick="resetGame()" style="color:var(--red); border-color:var(--red);">Réinitialiser tout</button>
+        </div>
+
         <div id="compass-menu" class="menu-content">
-            <div id="compass-tool"><div id="needle"></div></div>
-            <div id="dist-val" style="font-size:0.7rem; color:var(--gold); margin-top:5px;">-- m</div>
+            <div id="compass-disk"><div id="needle"></div></div>
+            <div id="dist-val" style="font-size:1.5rem; color:var(--gold); margin-top:15px; font-weight:bold;">-- m</div>
+            <div id="compass-status" style="font-size:0.7rem; color:gray; margin-top:5px;">CAP MAGNÉTIQUE</div>
         </div>
     </div>
 
-    <div id="status-msg">Initialisation...</div>
+    <div id="status-msg">SYSTÈME GPS CONNECTÉ</div>
 
     <div id="setup-screen" class="screen">
-        <h1 style="font-size: 4rem; margin:0;">🌝</h1>
-        <p style="color:var(--gold); text-align:center;">Saumur dématérialisé</p>
-        <input type="text" id="p-input" placeholder="Ton Pseudo..." style="padding:12px; border-radius:10px; border:1px solid var(--gold); background:none; color:white; text-align:center; width:200px;">
-        <button class="btn" onclick="requestPermissions()" style="margin-top:20px;">Commencer</button>
+        <h1 style="font-size: 6rem; margin:0; filter: drop-shadow(0 0 15px var(--gold));">🌝</h1>
+        <div style="height: 40px;"></div>
+        <input type="text" id="p-input" placeholder="Pseudo du voyageur..." style="padding:15px; border-radius:12px; border:1px solid var(--gold); background:none; color:white; text-align:center; width:220px; font-size:1rem;">
+        <button class="btn" onclick="requestPermissions()" style="margin-top:30px;">Lancer l'exploration</button>
     </div>
 
     <div id="nav-screen" class="screen" style="display:none;">
         <div id="action-zone" style="display:none;">
             <div class="parchment">
-                <h3 id="zone-title">📍 Zone Détectée</h3>
-                <p id="zone-desc">L'artefact vibre. Prêt pour le défi ?</p>
-                <button class="btn" onclick="openMiniGame()">Ouvrir le Défi</button>
+                <div style="text-align:center;">
+                    <h2 style="margin:0;">📍 DESTINATION</h2>
+                    <p>Le signal est stable. L'épreuve peut commencer.</p>
+                </div>
+                <button class="btn" onclick="openMiniGame()">Relever le défi</button>
             </div>
         </div>
     </div>
 
-    <div id="game-screen" class="screen" style="display:none; z-index:200; background:rgba(0,0,0,0.98);">
+    <div id="game-screen" class="screen" style="display:none; z-index:200; background:rgba(0,0,0,0.95);">
         <div id="game-inject" style="width:100%;"></div>
     </div>
 </div>
@@ -116,64 +138,41 @@
         { lat: 47.25564998, lon: -0.06899643 }
     ];
 
-    let state = {
-        step: 0, seconds: 0, score: 0, 
-        name: "Héros", isStarted: false
-    };
-
+    let state = { step: 0, seconds: 0, score: 0, name: "", isStarted: false };
     let deviceHeading = 0;
     let lastDist = 999;
 
-    // --- INITIALISATION & PERSISTANCE ---
     window.onload = () => {
-        const saved = localStorage.getItem('saumur_quest_save');
+        const saved = localStorage.getItem('saumur_quest_v2');
         if(saved) {
             state = JSON.parse(saved);
             if(state.isStarted) resumeGame();
         }
     };
 
-    function save() { localStorage.setItem('saumur_quest_save', JSON.stringify(state)); }
+    function save() { localStorage.setItem('saumur_quest_v2', JSON.stringify(state)); }
 
     function requestPermissions() {
-        // Pour iOS 13+ il faut une action utilisateur pour l'orientation
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-                .then(response => { if (response == 'granted') window.addEventListener('deviceorientation', handleOrientation); })
-                .catch(console.error);
+            DeviceOrientationEvent.requestPermission().then(res => {
+                if (res == 'granted') window.addEventListener('deviceorientation', e => deviceHeading = e.webkitCompassHeading);
+            });
         } else {
-            window.addEventListener('deviceorientation', handleOrientation);
+            window.addEventListener('deviceorientation', e => deviceHeading = 360 - e.alpha);
         }
-        startGame();
-    }
-
-    function startGame() {
-        state.name = document.getElementById('p-input').value || "Héros Perdu";
+        state.name = document.getElementById('p-input').value || "Héros";
         state.isStarted = true;
         resumeGame();
     }
 
     function resumeGame() {
-        document.getElementById('d-name').innerText = state.name;
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('nav-screen').style.display = 'flex';
         document.getElementById('compass-btn').style.display = 'flex';
+        document.getElementById('d-name').innerText = state.name;
         
-        setInterval(() => {
-            if(state.isStarted) {
-                state.seconds++;
-                updateUI();
-                save();
-            }
-        }, 1000);
-
+        setInterval(() => { if(state.isStarted) { state.seconds++; updateUI(); save(); } }, 1000);
         navigator.geolocation.watchPosition(handleGPS, null, { enableHighAccuracy: true });
-    }
-
-    // --- CAPTEURS ---
-    function handleOrientation(e) {
-        // On récupère le nord magnétique
-        deviceHeading = e.webkitCompassHeading || (360 - e.alpha);
     }
 
     function handleGPS(pos) {
@@ -182,54 +181,40 @@
         lastDist = dist;
         
         const halo = document.getElementById('nav-halo');
-        const status = document.getElementById('status-msg');
+        const disk = document.getElementById('compass-disk');
         const action = document.getElementById('action-zone');
+        let color = "var(--red)";
 
-        halo.style.borderWidth = "15px";
+        if (dist < 5) color = "var(--blue)";
+        else if (dist < 20) color = "var(--green)";
+        else if (dist < 60) color = "var(--orange)";
+
+        halo.style.borderWidth = dist < 60 ? "20px" : "5px";
+        halo.style.borderColor = color;
+        disk.style.borderColor = color;
         
-        // Nouvelles distances
-        if (dist > 60) {
-            halo.style.borderColor = "var(--red)";
-            status.innerText = "Trop loin... cherche encore.";
-            action.style.display = 'none';
-        } else if (dist > 20) {
-            halo.style.borderColor = "var(--orange)";
-            status.innerText = "Tu chauffes !";
-            action.style.display = 'none';
-        } else if (dist > 5) {
-            halo.style.borderColor = "var(--green)";
-            status.innerText = "C'est ici ! Ouvre le défi.";
-            action.style.display = 'block';
-        } else {
-            halo.style.borderColor = "var(--blue)";
-            status.innerText = "Précision divine. Zone Bleue.";
-            action.style.display = 'block';
-        }
+        action.style.display = dist < 25 ? 'block' : 'none';
 
-        // Boussole dynamique
+        // Boussole
         const needle = document.getElementById('needle');
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
 
-        if(dist < 10) {
-            needle.style.animation = "crazy 0.3s linear infinite";
+        if(dist < 15) {
+            needle.style.animation = "crazy 0.4s linear infinite";
         } else {
             needle.style.animation = "none";
             const targetAngle = Math.atan2(target.lon - pos.coords.longitude, target.lat - pos.coords.latitude) * (180 / Math.PI);
-            // On soustrait l'orientation du téléphone pour que l'aiguille pointe toujours vers le point réel
-            const finalAngle = targetAngle - deviceHeading;
-            needle.style.transform = `rotate(${finalAngle}deg)`;
+            needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
         }
     }
 
-    // --- LOGIQUE JEU ---
     function openMiniGame() {
         document.getElementById('game-screen').style.display = 'flex';
-        const container = document.getElementById('game-inject');
-        container.innerHTML = `
+        document.getElementById('game-inject').innerHTML = `
             <div class="parchment">
-                <h2>DÉFI N°${state.step + 1}</h2>
-                <p>Trouve l'énigme cachée à cet endroit...</p>
-                <button class="btn" onclick="validateStep(100)">Valider</button>
+                <h2>DÉFI ${state.step + 1}</h2>
+                <p>Bienvenue à l'étape ${state.step + 1}. Résous cette énigme pour continuer.</p>
+                <button class="btn" onclick="validateStep(100)">Valider l'étape</button>
             </div>`;
     }
 
@@ -237,25 +222,27 @@
         state.score += pts;
         state.step++;
         document.getElementById('game-screen').style.display = 'none';
-        if(state.step >= POINTS.length) {
-            alert("BRAVO ! Tu as fini le jeu !");
-            resetGame();
-        }
         updateUI();
         save();
     }
 
-    function resetGame() {
-        localStorage.removeItem('saumur_quest_save');
-        location.reload();
+    function retryStep() {
+        document.getElementById('game-screen').style.display = 'none';
+        toggleMenu('options-menu');
     }
 
-    // --- UTILITAIRES ---
+    function resetGame() {
+        if(confirm("Tout recommencer ?")) {
+            localStorage.removeItem('saumur_quest_v2');
+            location.reload();
+        }
+    }
+
     function toggleMenu(id) {
         const m = document.getElementById(id);
-        const isVisible = m.style.display === 'block';
+        const current = m.style.display;
         document.querySelectorAll('.menu-content').forEach(el => el.style.display = 'none');
-        m.style.display = isVisible ? 'none' : 'block';
+        m.style.display = (current === 'flex' || current === 'block') ? 'none' : (id === 'compass-menu' ? 'flex' : 'block');
     }
 
     function updateUI() {
@@ -268,8 +255,8 @@
 
     function calculateDistance(la1, lo1, la2, lo2) {
         const R = 6371000;
-        const dLat = (la2-la1)*Math.PI/180; const dLon = (lo2-lo1)*Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dLon/2)**2;
+        const dLat = (la2-la1)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(((lo2-lo1)*Math.PI/180)/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 </script>
