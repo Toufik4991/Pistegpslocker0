@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🌚</title>
+    <title>Saumur Quest - AR Edition</title>
     <style>
         :root { 
             --gold: #d4af37; --bg: #0a0a0a; --parchment: #fdfaf0;
@@ -35,7 +35,7 @@
             padding: 15px; border-radius: 15px; min-width: 180px; z-index: 2100;
         }
 
-        /* BOUSSOLE AVENTURE */
+        /* BOUSSOLE */
         #compass-menu { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; background: rgba(0,0,0,0.95);
@@ -55,11 +55,6 @@
             position: absolute; border-radius: 2px;
             transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1);
         }
-        #needle::after {
-            content: ''; position: absolute; top: -10px; left: -3px;
-            border-left: 5px solid transparent; border-right: 5px solid transparent;
-            border-bottom: 15px solid #ff4500;
-        }
 
         /* POPUP LUNE */
         .lune-popup {
@@ -73,35 +68,23 @@
             padding: 20px; border-radius: 20px; position: relative;
             margin-bottom: 25px; width: 85%; border: 3px solid var(--gold);
         }
-        .lune-speech::after {
-            content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%);
-            border-left: 15px solid transparent; border-right: 15px solid transparent;
-            border-top: 15px solid var(--gold);
-        }
-
-        /* CHARGEMENT */
-        #loading-screen {
-            display: none; position: fixed; inset: 0; background: black;
-            z-index: 6000; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .loader-orb {
-            width: 80px; height: 80px; border-radius: 50%;
-            background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
-            animation: pulse 1s infinite alternate;
-        }
 
         /* ETATS & BOUTONS */
         .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-skip { background: none; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
         #status-msg { position: absolute; bottom: 30px; width: 100%; text-align: center; color: var(--gold); font-size: 0.75rem; letter-spacing: 2px; }
-        .compass-locked { border-color: var(--red) !important; background: rgba(255,0,0,0.2) !important; animation: shake 0.5s; }
         
+        #loading-screen {
+            display: none; position: fixed; inset: 0; background: black;
+            z-index: 6000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loader-orb { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); animation: pulse 1s infinite alternate; }
+
         .flash-white { position: absolute; inset: 0; z-index: 4000; pointer-events: none; background: white; opacity: 0; }
         .active-flash { animation: flashAnim 0.6s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
@@ -155,7 +138,7 @@
         </div>
     </div>
 
-    <div id="game-screen" class="screen" style="display:none; z-index:5000; background:rgba(0,0,0,0.98);">
+    <div id="game-screen" class="screen" style="display:none; z-index:5000; background:black; padding:0;">
         <div id="game-inject" style="width:100%; height:100%;"></div>
     </div>
 
@@ -182,7 +165,7 @@
     let deviceHeading = 0;
     let gameActive = false;
     let isCompassOpen = false;
-    let popupMutedAt = null; // Variable mémoire pour la fermeture popup
+    let popupMutedAt = null;
 
     window.onload = () => {
         const saved = localStorage.getItem('saumur_quest_v2_final');
@@ -238,9 +221,7 @@
         document.getElementById('status-msg').innerText = Math.round(dist) + " MÈTRES";
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
 
-        // GESTION POPUP AVEC MÉMOIRE
         if (dist < 30) {
-            // Si on est en zone et que ce n'est pas le point qu'on a "Mute"
             if (popup.style.display !== 'flex' && popupMutedAt !== state.step) {
                 popup.style.display = 'flex';
                 document.getElementById('btn-next').style.display = (dist < 10) ? 'block' : 'none';
@@ -249,7 +230,6 @@
                     "Zone proche. Relève le défi pour gagner de l'énergie.";
             }
         } else {
-            // Si on sort de la zone, on reset le "Mute" pour le prochain point
             popup.style.display = 'none';
             popupMutedAt = null;
         }
@@ -261,7 +241,7 @@
 
     function dismissPopup() {
         document.getElementById('lune-popup').style.display = 'none';
-        popupMutedAt = state.step; // On ne réaffiche plus la popup pour CETTE étape
+        popupMutedAt = state.step;
     }
 
     function openMiniGame() {
@@ -271,13 +251,81 @@
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             gameActive = true;
-            document.getElementById('game-inject').innerHTML = `
-                <div class="screen">
-                    <h2 style="color:var(--gold)">DÉFI ${state.step + 1}</h2>
-                    <p style="text-align:center">Le contenu du jeu sera injecté ici.</p>
-                    <button class="btn" onclick="finishStep(100)">Gagner +100 Énergie</button>
-                </div>`;
+            tiroirJeu1(document.getElementById('game-inject'));
         }, 1500);
+    }
+
+    // --- LE JEU 1 : COLLECTE AR ---
+    function tiroirJeu1(emplacement) {
+        let scoreJeu = 0;
+        let lunes = [];
+        let running = true;
+
+        emplacement.innerHTML = `
+            <div style="position:relative; width:100%; height:100%; background:#000; overflow:hidden;">
+                <video id="ar-v" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.4;"></video>
+                <canvas id="ar-c" style="position:absolute; inset:0;"></canvas>
+                <div style="position:absolute; top:20px; width:100%; text-align:center; color:gold; font-size:1.5rem; font-weight:bold; pointer-events:none;">
+                    ENERGIE : <span id="game-score">0</span>%
+                </div>
+            </div>
+        `;
+
+        const video = document.getElementById('ar-v');
+        const canvas = document.getElementById('ar-c');
+        const ctx = canvas.getContext('2d');
+        canvas.width = emplacement.clientWidth;
+        canvas.height = emplacement.clientHeight;
+
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(s => video.srcObject = s).catch(() => {});
+
+        function draw() {
+            if(!running) return;
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            
+            if(Math.random() < 0.04 && lunes.length < 6) {
+                lunes.push({ x: Math.random()*(canvas.width-60)+30, y: Math.random()*(canvas.height-150)+100, target: false, opacity:1 });
+            }
+
+            lunes.forEach((l, i) => {
+                if(l.target) {
+                    l.y -= 25; l.opacity -= 0.05;
+                    if(l.opacity <= 0) {
+                        scoreJeu = Math.min(100, scoreJeu + 10);
+                        document.getElementById('game-score').innerText = scoreJeu;
+                        lunes.splice(i, 1);
+                        if(scoreJeu >= 100) {
+                            running = false;
+                            if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+                            setTimeout(() => finishStep(100, scoreJeu), 1000);
+                        }
+                    }
+                }
+                ctx.globalAlpha = l.opacity;
+                ctx.font = "50px Arial";
+                ctx.fillText("🌙", l.x-25, l.y);
+            });
+            requestAnimationFrame(draw);
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            lunes.forEach(l => {
+                if(Math.hypot(touch.clientX - rect.left - l.x, touch.clientY - rect.top - l.y) < 50) l.target = true;
+            });
+        });
+        
+        // Pour test PC
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            lunes.forEach(l => {
+                if(Math.hypot(e.clientX - rect.left - l.x, e.clientY - rect.top - l.y) < 50) l.target = true;
+            });
+        });
+
+        draw();
     }
 
     function skipToNext() {
@@ -289,9 +337,9 @@
         triggerFlash("var(--blue)");
     }
 
-    function finishStep(pts) {
+    function finishStep(pts, energyEarned = 100) {
         state.score += pts;
-        state.boussoleEnergy = Math.min(100, state.boussoleEnergy + 50);
+        state.boussoleEnergy = energyEarned; 
         state.step++;
         popupMutedAt = null;
         gameActive = false;
@@ -332,6 +380,7 @@
         document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy);
         document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
         if(state.boussoleEnergy <= 0) document.getElementById('compass-btn').style.borderColor = 'var(--red)';
+        else document.getElementById('compass-btn').style.borderColor = 'var(--blue)';
     }
 
     function calculateDistance(la1, lo1, la2, lo2) {
