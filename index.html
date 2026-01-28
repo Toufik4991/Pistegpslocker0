@@ -19,72 +19,36 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* NAVIGATION HALO */
-        #nav-halo {
-            position: absolute; inset: 0; border: 4px solid transparent; 
-            transition: all 0.5s ease; pointer-events: none; z-index: 5; border-radius: 22px;
-        }
+        #nav-halo { position: absolute; inset: 0; border: 4px solid transparent; transition: all 0.5s ease; pointer-events: none; z-index: 5; border-radius: 22px; }
 
-        /* UI SUPÉRIEURE */
+        /* UI HAUTE */
         .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2000; justify-content: flex-end; }
         .circle-btn { width: 45px; height: 45px; background: rgba(20,20,20,0.9); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; backdrop-filter: blur(5px); }
         
-        .menu-content {
-            display: none; position: absolute; top: 60px; right: 0;
-            background: rgba(10,10,10,0.98); border: 1px solid var(--gold);
-            padding: 15px; border-radius: 15px; min-width: 180px; z-index: 2100;
-        }
+        .menu-content { display: none; position: absolute; top: 60px; right: 0; background: rgba(10,10,10,0.98); border: 1px solid var(--gold); padding: 15px; border-radius: 15px; min-width: 180px; z-index: 2100; }
 
-        /* BOUSSOLE */
-        #compass-menu { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 100%; height: 100%; background: rgba(0,0,0,0.95);
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 1500;
-        }
-        #compass-disk { 
-            width: 260px; height: 260px; 
-            border: 10px double var(--gold); border-radius: 50%; 
-            position: relative; background: radial-gradient(circle, #1a1a1a 0%, #050505 100%);
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
-            display: flex; align-items: center; justify-content: center;
-        }
-        #needle { 
-            width: 4px; height: 80%; 
-            background: linear-gradient(to bottom, #ff4500 50%, #fdfaf0 50%); 
-            position: absolute; border-radius: 2px;
-            transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1);
-        }
+        /* BOUSSOLE FULL SCREEN */
+        #compass-menu { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1500; }
+        #compass-disk { width: 260px; height: 260px; border: 10px double var(--gold); border-radius: 50%; position: relative; background: radial-gradient(circle, #1a1a1a 0%, #050505 100%); display: flex; align-items: center; justify-content: center; }
+        #needle { width: 4px; height: 80%; background: linear-gradient(to bottom, #ff4500 50%, #fdfaf0 50%); position: absolute; border-radius: 2px; transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1); }
 
-        /* POPUP LUNE */
-        .lune-popup {
-            display: none; position: absolute; inset: 0; 
-            background: rgba(0,0,0,0.9); z-index: 3000;
-            flex-direction: column; align-items: center; justify-content: center;
-            padding: 30px; text-align: center;
-        }
-        .lune-speech {
-            background: var(--parchment); color: #2c3e50;
-            padding: 20px; border-radius: 20px; position: relative;
-            margin-bottom: 25px; width: 85%; border: 3px solid var(--gold);
-        }
+        /* POPUP LUNE / ZONE */
+        .lune-popup { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
+        .lune-speech { background: var(--parchment); color: #2c3e50; padding: 20px; border-radius: 20px; margin-bottom: 25px; width: 85%; border: 3px solid var(--gold); }
 
-        /* ETATS & BOUTONS */
-        .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-skip { background: none; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
+        /* BOUTONS ET ECRANS */
+        .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
+        .btn-skip { background: var(--blue); color: white; margin-top: 10px; box-shadow: 0 0 15px rgba(52, 152, 219, 0.5); }
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
-        #status-msg { position: absolute; bottom: 30px; width: 100%; text-align: center; color: var(--gold); font-size: 0.75rem; letter-spacing: 2px; }
         
-        #loading-screen {
-            display: none; position: fixed; inset: 0; background: black;
-            z-index: 6000; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .loader-orb { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); animation: pulse 1s infinite alternate; }
+        /* TRANSITION CASCADE */
+        #smiley-cascade { position: absolute; inset: 0; pointer-events: none; z-index: 7000; display: none; overflow: hidden; }
+        .falling-smiley { position: absolute; font-size: 2.5rem; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
         .flash-white { position: absolute; inset: 0; z-index: 4000; pointer-events: none; background: white; opacity: 0; }
         .active-flash { animation: flashAnim 0.6s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -92,6 +56,7 @@
 <div id="game-container">
     <div id="nav-halo"></div>
     <div id="flash-effect" class="flash-white"></div>
+    <div id="smiley-cascade"></div>
 
     <div class="top-bar">
         <div id="compass-btn" class="circle-btn" onclick="toggleCompass()" style="display:none; border-color: var(--blue);">🧭</div>
@@ -105,36 +70,35 @@
             <div style="color: var(--blue);">Énergie : <span id="d-energy">0</span></div>
             <div>Étape : <span id="d-step">1 / 9</span></div>
         </div>
-
         <div id="options-menu" class="menu-content">
-            <button class="btn" onclick="resetProgression()" style="width:100%; background:var(--red); color:white; font-size: 0.7rem;">Recommencer l'aventure</button>
+            <button class="btn" onclick="resetProgression()" style="width:100%; background:var(--red); color:white; font-size: 0.7rem;">Réinitialiser</button>
         </div>
 
         <div id="compass-menu">
             <div id="compass-disk"><div id="needle"></div></div>
             <div id="dist-val" style="font-size:2.5rem; color:var(--gold); margin-top:20px; font-weight:bold;">-- m</div>
-            <div style="color:var(--blue); font-weight:bold; letter-spacing:2px;">ÉNERGIE: <span id="energy-val">0</span>%</div>
-            <button class="btn" onclick="toggleCompass()" style="margin-top:40px;">Fermer</button>
+            <div style="color:var(--blue); font-weight:bold; letter-spacing:1px;">AUTONOMIE: <span id="energy-val">0</span>%</div>
+            <button class="btn" onclick="toggleCompass()" style="margin-top:40px;">Retour Carte</button>
         </div>
     </div>
 
-    <div id="status-msg">GPS EN ATTENTE...</div>
+    <div id="status-msg" style="position:absolute; bottom:30px; width:100%; text-align:center; color:var(--gold); font-size:0.75rem; letter-spacing:2px; z-index:100;">GPS EN ATTENTE...</div>
 
     <div id="setup-screen" class="screen">
         <h1 style="font-size: 6rem; margin:0;">🌝</h1>
-        <input type="text" id="p-input" placeholder="Ton Nom..." style="padding:15px; border-radius:15px; border:1px solid var(--gold); background:none; color:white; text-align:center; margin-top:20px;">
-        <button class="btn" onclick="requestPermissions()" style="margin-top:30px;">Commencer</button>
+        <input type="text" id="p-input" placeholder="Ton Nom..." style="padding:15px; border-radius:15px; border:1px solid var(--gold); background:none; color:white; text-align:center; margin-top:20px; width: 70%;">
+        <button class="btn" onclick="requestPermissions()" style="margin-top:30px;">Commencer la Quête</button>
     </div>
 
     <div id="lune-popup" class="lune-popup">
         <div class="lune-speech">
-            <h2 style="margin:0;">🌝</h2>
+            <h2 id="lune-title" style="margin:0;">🌚 ZONE PROCHE</h2>
             <p id="lune-instruction">...</p>
         </div>
         <div id="zone-actions" style="display: flex; flex-direction: column; gap: 10px; width: 80%;">
-            <button id="btn-game" class="btn" onclick="openMiniGame()">RÉCUPÉRER DE L'ÉNERGIE</button>
-            <button id="btn-next" class="btn btn-skip" onclick="skipToNext()">ÉTAPE SUIVANTE</button>
-            <button class="btn" style="background:#333; color:white; font-size:0.8rem;" onclick="dismissPopup()">RESTER ICI</button>
+            <button id="btn-game" class="btn" onclick="openMiniGame()">⚡ JOUER POUR L'ÉNERGIE</button>
+            <button id="btn-next" class="btn btn-skip" onclick="startTransition()">➡️ ÉTAPE SUIVANTE</button>
+            <button class="btn" style="background:#333; color:white;" onclick="dismissPopup()">RETOURNER À LA CARTE</button>
         </div>
     </div>
 
@@ -142,13 +106,14 @@
         <div id="game-inject" style="width:100%; height:100%;"></div>
     </div>
 
-    <div id="loading-screen">
-        <div class="loader-orb"></div>
-        <p style="color:var(--gold); margin-top:20px; letter-spacing:3px;">ALIGNEMENT DES ASTRES...</p>
+    <div id="loading-screen" class="screen" style="display:none; background:black; z-index:6000;">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, var(--gold) 0%, transparent 70%); animation: pulse 1s infinite alternate;"></div>
+        <p style="color:var(--gold); margin-top:20px; letter-spacing:3px;">SYNCHRONISATION...</p>
     </div>
 </div>
 
 <script>
+    // --- DONNÉES GPS ---
     const QUEST_DATA = [
         { lat: 47.25865295634987, lon: -0.07232092747517298 },
         { lat: 47.25922301993599, lon: -0.07496422077580976 },
@@ -169,14 +134,12 @@
 
     window.onload = () => {
         const saved = localStorage.getItem('saumur_quest_v2_final');
-        if(saved) { 
-            state = JSON.parse(saved); 
-            if(state.isStarted) resumeGame(); 
-        }
+        if(saved) { state = JSON.parse(saved); if(state.isStarted) resumeGame(); }
     };
 
     function save() { localStorage.setItem('saumur_quest_v2_final', JSON.stringify(state)); }
 
+    // --- INITIALISATION ET GPS ---
     function requestPermissions() {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission().then(res => {
@@ -194,7 +157,6 @@
         document.getElementById('d-name').innerText = state.name;
         navigator.geolocation.watchPosition(handleGPS, null, { enableHighAccuracy: true });
         updateUI();
-        
         setInterval(() => {
             if(isCompassOpen && state.boussoleEnergy > 0) {
                 state.boussoleEnergy -= 0.5; 
@@ -225,9 +187,10 @@
             if (popup.style.display !== 'flex' && popupMutedAt !== state.step) {
                 popup.style.display = 'flex';
                 document.getElementById('btn-next').style.display = (dist < 10) ? 'block' : 'none';
+                document.getElementById('lune-title').innerText = (dist < 10) ? "✨ ZONE BLEUE ✨" : "🌚 ZONE PROCHE";
                 document.getElementById('lune-instruction').innerText = (dist < 10) ? 
-                    "Tu es au cœur de la zone. Recharge ou continue." : 
-                    "Zone proche. Relève le défi pour gagner de l'énergie.";
+                    "Félicitations ! Tu es sur le point GPS. Veux-tu recharger l'énergie ou passer au point suivant ?" : 
+                    "Tu y es presque. Rentre dans la zone bleue pour valider cette étape.";
             }
         } else {
             popup.style.display = 'none';
@@ -239,11 +202,34 @@
         needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
     }
 
-    function dismissPopup() {
+    // --- SYSTÈME DE TRANSITION (CASCADE) ---
+    function startTransition() {
         document.getElementById('lune-popup').style.display = 'none';
-        popupMutedAt = state.step;
+        const container = document.getElementById('smiley-cascade');
+        container.style.display = 'block';
+        container.innerHTML = '';
+        
+        for(let i=0; i<45; i++) {
+            setTimeout(() => {
+                const s = document.createElement('div');
+                s.className = 'falling-smiley';
+                s.innerText = ['🌟', '🌝', '✨', '💎', '🚀'][Math.floor(Math.random()*5)];
+                s.style.left = Math.random() * 100 + 'vw';
+                s.style.animationDuration = (Math.random() * 1.2 + 0.6) + 's';
+                container.appendChild(s);
+            }, i * 40);
+        }
+
+        setTimeout(() => {
+            state.step++;
+            popupMutedAt = null;
+            container.style.display = 'none';
+            save(); updateUI();
+            triggerFlash("var(--blue)");
+        }, 2800);
     }
 
+    // --- GESTIONNAIRE DES JEUX (TIROIRS) ---
     function openMiniGame() {
         document.getElementById('lune-popup').style.display = 'none';
         document.getElementById('loading-screen').style.display = 'flex';
@@ -251,151 +237,100 @@
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
             gameActive = true;
-            tiroirJeu1(document.getElementById('game-inject'));
-        }, 1500);
+            loadGameByStep(state.step, document.getElementById('game-inject'));
+        }, 1200);
     }
 
-    // --- LE JEU 1 : COLLECTE AR ---
-    function tiroirJeu1(emplacement) {
-        let scoreJeu = 0;
-        let lunes = [];
-        let running = true;
-
-        emplacement.innerHTML = `
-            <div style="position:relative; width:100%; height:100%; background:#000; overflow:hidden;">
-                <video id="ar-v" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.4;"></video>
-                <canvas id="ar-c" style="position:absolute; inset:0;"></canvas>
-                <div style="position:absolute; top:20px; width:100%; text-align:center; color:gold; font-size:1.5rem; font-weight:bold; pointer-events:none;">
-                    ENERGIE : <span id="game-score">0</span>%
-                </div>
-            </div>
-        `;
-
-        const video = document.getElementById('ar-v');
-        const canvas = document.getElementById('ar-c');
-        const ctx = canvas.getContext('2d');
-        canvas.width = emplacement.clientWidth;
-        canvas.height = emplacement.clientHeight;
-
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(s => video.srcObject = s).catch(() => {});
-
-        function draw() {
-            if(!running) return;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            
-            if(Math.random() < 0.04 && lunes.length < 6) {
-                lunes.push({ x: Math.random()*(canvas.width-60)+30, y: Math.random()*(canvas.height-150)+100, target: false, opacity:1 });
-            }
-
-            lunes.forEach((l, i) => {
-                if(l.target) {
-                    l.y -= 25; l.opacity -= 0.05;
-                    if(l.opacity <= 0) {
-                        scoreJeu = Math.min(100, scoreJeu + 10);
-                        document.getElementById('game-score').innerText = scoreJeu;
-                        lunes.splice(i, 1);
-                        if(scoreJeu >= 100) {
-                            running = false;
-                            if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
-                            setTimeout(() => finishStep(100, scoreJeu), 1000);
-                        }
-                    }
-                }
-                ctx.globalAlpha = l.opacity;
-                ctx.font = "50px Arial";
-                ctx.fillText("🌙", l.x-25, l.y);
-            });
-            requestAnimationFrame(draw);
+    function loadGameByStep(step, el) {
+        switch(step) {
+            case 0: game_Step0_Lunes(el); break;
+            case 1: game_Step1_Pipes(el); break;
+            case 2: game_Step2_Memory(el); break;
+            case 3: game_Step3_AR(el); break;
+            case 4: game_Step4_Quiz(el); break;
+            case 5: game_Step5_Riddle(el); break;
+            case 6: game_Step6_Simon(el); break;
+            case 7: game_Step7_Lock(el); break;
+            case 8: game_Step8_Boss(el); break;
+            default: game_Step0_Lunes(el);
         }
+    }
 
-        canvas.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            const rect = canvas.getBoundingClientRect();
-            lunes.forEach(l => {
-                if(Math.hypot(touch.clientX - rect.left - l.x, touch.clientY - rect.top - l.y) < 50) l.target = true;
-            });
-        });
-        
-        // Pour test PC
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            lunes.forEach(l => {
-                if(Math.hypot(e.clientX - rect.left - l.x, e.clientY - rect.top - l.y) < 50) l.target = true;
-            });
-        });
+    // --- TIROIRS DE JEUX (À REMPLIR) ---
 
+    function game_Step0_Lunes(el) { // JEU 1 : Lunes AR
+        let score = 0; let items = []; let running = true;
+        el.innerHTML = `<div style="width:100%;height:100%;position:relative;"><video id="v0" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video><canvas id="c0" style="position:absolute;inset:0;"></canvas><div style="position:absolute;top:20px;width:100%;text-align:center;color:gold;font-size:1.5rem;text-shadow:2px 2px 4px #000;">ÉNERGIE : <span id="s0">0</span>%</div></div>`;
+        const v = document.getElementById('v0'); const c = document.getElementById('c0'); const ctx = c.getContext('2d');
+        c.width = el.clientWidth; c.height = el.clientHeight;
+        navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(s=>v.srcObject=s).catch(()=>{});
+        function draw() {
+            if(!running) return; ctx.clearRect(0,0,c.width,c.height);
+            if(Math.random()<0.04 && items.length<6) items.push({x:Math.random()*(c.width-60)+30,y:Math.random()*(c.height-150)+100,hit:false,o:1});
+            items.forEach((it,i)=>{
+                if(it.hit){ it.y-=20; it.o-=0.05; if(it.o<=0){ score+=10; document.getElementById('s0').innerText=score; items.splice(i,1); if(score>=100){running=false; if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop()); finishGameUI(100);}}}
+                ctx.globalAlpha=it.o; ctx.font="50px Arial"; ctx.fillText("🌙",it.x-25,it.y);
+            }); requestAnimationFrame(draw);
+        }
+        c.onclick=(e)=>{ const rect=c.getBoundingClientRect(); items.forEach(it=>{if(Math.hypot(e.clientX-rect.left-it.x, e.clientY-rect.top-it.y)<50) it.hit=true;}); };
         draw();
     }
 
-    function skipToNext() {
-        document.getElementById('lune-popup').style.display = 'none';
-        state.step++;
-        popupMutedAt = null;
-        save();
-        updateUI();
-        triggerFlash("var(--blue)");
+    function game_Step1_Pipes(el) { el.innerHTML = `<div class="screen"><h2>POINT 2 : TUYAUX</h2><p>Mets ton code ici...</p><button class="btn" onclick="finishGameUI(100)">SIMULER RÉUSSITE</button></div>`; }
+    function game_Step2_Memory(el) { el.innerHTML = `<div class="screen"><h2>POINT 3 : MÉMOIRE</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step3_AR(el) { el.innerHTML = `<div class="screen"><h2>POINT 4 : CHASSE AR</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step4_Quiz(el) { el.innerHTML = `<div class="screen"><h2>POINT 5 : QUIZ</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step5_Riddle(el) { el.innerHTML = `<div class="screen"><h2>POINT 6 : ÉNIGME</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step6_Simon(el) { el.innerHTML = `<div class="screen"><h2>POINT 7 : SIMON</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step7_Lock(el) { el.innerHTML = `<div class="screen"><h2>POINT 8 : CADENAS</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
+    function game_Step8_Boss(el) { el.innerHTML = `<div class="screen"><h2>FINAL : LE GARDIEN</h2><button class="btn" onclick="finishGameUI(500)">TERMINER L'AVENTURE</button></div>`; }
+
+    // --- FIN DE JEU ET CHOIX ---
+    function finishGameUI(pts) {
+        state.score += pts; state.boussoleEnergy = 100; save(); updateUI();
+        document.getElementById('game-inject').innerHTML = `
+            <div class="screen" style="background:rgba(0,0,0,0.95); text-align:center;">
+                <h1 style="font-size:4rem; margin:0;">🔋</h1>
+                <h2 style="color:var(--gold);">ÉNERGIE RESTAURÉE</h2>
+                <p>Bravo ${state.name} ! Énergie à 100%.</p>
+                <div style="display:flex; flex-direction:column; gap:15px; width:85%; margin-top:20px;">
+                    <button class="btn" onclick="openMiniGame()">REJOUER CE DÉFI</button>
+                    <button class="btn" style="background:var(--blue); color:white;" onclick="closeGameAndCheckZone()">CONTINUER VERS LA ZONE BLEUE</button>
+                </div>
+            </div>`;
     }
 
-    function finishStep(pts, energyEarned = 100) {
-        state.score += pts;
-        state.boussoleEnergy = energyEarned; 
-        state.step++;
-        popupMutedAt = null;
-        gameActive = false;
-        document.getElementById('game-screen').style.display = 'none';
+    function closeGameAndCheckZone() {
+        gameActive = false; document.getElementById('game-screen').style.display = 'none';
         triggerFlash("white");
-        save();
-        updateUI();
     }
 
-    function triggerFlash(color) {
-        const f = document.getElementById('flash-effect');
-        f.style.background = color;
-        f.classList.add('active-flash');
-        setTimeout(() => f.classList.remove('active-flash'), 600);
-    }
-
+    // --- UTILITAIRES ---
+    function dismissPopup() { document.getElementById('lune-popup').style.display = 'none'; popupMutedAt = state.step; }
+    function triggerFlash(color) { const f = document.getElementById('flash-effect'); f.style.background = color; f.classList.add('active-flash'); setTimeout(() => f.classList.remove('active-flash'), 600); }
     function toggleCompass() {
         const btn = document.getElementById('compass-btn');
-        if(state.boussoleEnergy <= 0) {
-            btn.classList.add('compass-locked');
-            setTimeout(() => btn.classList.remove('compass-locked'), 500);
-            return;
-        }
-        isCompassOpen = !isCompassOpen;
-        document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
+        if(state.boussoleEnergy <= 0) { btn.classList.add('compass-locked'); setTimeout(() => btn.classList.remove('compass-locked'), 500); return; }
+        isCompassOpen = !isCompassOpen; document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
     }
-
     function toggleMenu(id) {
-        const m = document.getElementById(id);
-        const isOpen = m.style.display === 'block';
+        const m = document.getElementById(id); const isOpen = m.style.display === 'block';
         document.querySelectorAll('.menu-content').forEach(el => el.style.display = 'none');
         m.style.display = isOpen ? 'none' : 'block';
     }
-
     function updateUI() {
         document.getElementById('d-score').innerText = state.score;
         document.getElementById('d-energy').innerText = Math.round(state.boussoleEnergy);
         document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy);
         document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
-        if(state.boussoleEnergy <= 0) document.getElementById('compass-btn').style.borderColor = 'var(--red)';
-        else document.getElementById('compass-btn').style.borderColor = 'var(--blue)';
+        document.getElementById('compass-btn').style.borderColor = (state.boussoleEnergy <= 0) ? 'var(--red)' : 'var(--blue)';
     }
-
     function calculateDistance(la1, lo1, la2, lo2) {
-        const R = 6371000;
-        const dLat = (la2-la1)*Math.PI/180;
+        const R = 6371000; const dLat = (la2-la1)*Math.PI/180;
         const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(((lo2-lo1)*Math.PI/180)/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
-
-    function resetProgression() {
-        if(confirm("Recommencer tout le jeu ?")) {
-            localStorage.removeItem('saumur_quest_v2_final');
-            location.reload();
-        }
-    }
+    function resetProgression() { if(confirm("Recommencer tout ?")) { localStorage.removeItem('saumur_quest_v2_final'); location.reload(); } }
 </script>
 </body>
 </html>
