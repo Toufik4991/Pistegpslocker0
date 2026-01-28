@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Saumur Quest 🌚 - Interface</title>
+    <title>🌚</title>
     <style>
         :root { 
             --gold: #d4af37; --bg: #0a0a0a; --parchment: #fdfaf0;
@@ -19,13 +19,13 @@
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* HALO D'APPROCHE GPS */
+        /* NAVIGATION HALO */
         #nav-halo {
             position: absolute; inset: 0; border: 4px solid transparent; 
             transition: all 0.5s ease; pointer-events: none; z-index: 5; border-radius: 22px;
         }
 
-        /* BARRE D'OUTILS */
+        /* UI SUPÉRIEURE */
         .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2000; justify-content: flex-end; }
         .circle-btn { width: 45px; height: 45px; background: rgba(20,20,20,0.9); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; backdrop-filter: blur(5px); }
         
@@ -35,7 +35,7 @@
             padding: 15px; border-radius: 15px; min-width: 180px; z-index: 2100;
         }
 
-        /* BOUSSOLE AVENTURE (AMÉLIORÉE) */
+        /* BOUSSOLE AVENTURE */
         #compass-menu { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; height: 100%; background: rgba(0,0,0,0.95);
@@ -61,7 +61,7 @@
             border-bottom: 15px solid #ff4500;
         }
 
-        /* POPUP LUNE (ZONE ATTEINTE) */
+        /* POPUP LUNE */
         .lune-popup {
             display: none; position: absolute; inset: 0; 
             background: rgba(0,0,0,0.9); z-index: 3000;
@@ -79,15 +79,29 @@
             border-top: 15px solid var(--gold);
         }
 
-        /* BOUTONS ET ÉCRANS */
+        /* CHARGEMENT */
+        #loading-screen {
+            display: none; position: fixed; inset: 0; background: black;
+            z-index: 6000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .loader-orb {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* ETATS & BOUTONS */
         .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-skip { background: none; border: 2px solid var(--blue); color: var(--blue); margin-top: 10px; }
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
         #status-msg { position: absolute; bottom: 30px; width: 100%; text-align: center; color: var(--gold); font-size: 0.75rem; letter-spacing: 2px; }
+        .compass-locked { border-color: var(--red) !important; background: rgba(255,0,0,0.2) !important; animation: shake 0.5s; }
         
         .flash-white { position: absolute; inset: 0; z-index: 4000; pointer-events: none; background: white; opacity: 0; }
         .active-flash { animation: flashAnim 0.6s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
@@ -110,7 +124,7 @@
         </div>
 
         <div id="options-menu" class="menu-content">
-            <button class="btn" onclick="resetProgression()" style="width:100%; background:var(--red); color:white; font-size: 0.7rem;">Réinitialiser le jeu</button>
+            <button class="btn" onclick="resetProgression()" style="width:100%; background:var(--red); color:white; font-size: 0.7rem;">Recommencer l'aventure</button>
         </div>
 
         <div id="compass-menu">
@@ -125,53 +139,60 @@
 
     <div id="setup-screen" class="screen">
         <h1 style="font-size: 6rem; margin:0;">🌝</h1>
-        <h2 style="color:var(--gold); letter-spacing:4px;">SAUMUR QUEST</h2>
-        <input type="text" id="p-input" placeholder="Pseudo..." style="padding:15px; border-radius:15px; border:1px solid var(--gold); background:none; color:white; text-align:center; margin-top:20px;">
+        <input type="text" id="p-input" placeholder="Ton Nom..." style="padding:15px; border-radius:15px; border:1px solid var(--gold); background:none; color:white; text-align:center; margin-top:20px;">
         <button class="btn" onclick="requestPermissions()" style="margin-top:30px;">Commencer</button>
     </div>
 
     <div id="lune-popup" class="lune-popup">
         <div class="lune-speech">
-            <h2 id="lune-msg">BIEN JOUÉ !</h2>
-            <p>Une présence lunaire est détectée. Es-tu prêt pour le défi ?</p>
+            <h2 style="margin:0;">🌝</h2>
+            <p id="lune-instruction">...</p>
         </div>
-        <div style="font-size: 5rem; margin-bottom: 20px; animation: pulse 1.5s infinite alternate;">🌝</div>
-        <div style="display: flex; flex-direction: column; gap: 10px; width: 80%;">
-            <button class="btn" onclick="openMiniGame()">Lancer le jeu de zone</button>
-            <button class="btn" style="background:#444; color:white;" onclick="closeLunePopup()">Fermer et gagner de l'énergie</button>
+        <div id="zone-actions" style="display: flex; flex-direction: column; gap: 10px; width: 80%;">
+            <button id="btn-game" class="btn" onclick="openMiniGame()">RÉCUPÉRER DE L'ÉNERGIE</button>
+            <button id="btn-next" class="btn btn-skip" onclick="skipToNext()">ÉTAPE SUIVANTE</button>
+            <button class="btn" style="background:#333; color:white; font-size:0.8rem;" onclick="dismissPopup()">RESTER ICI</button>
         </div>
     </div>
 
     <div id="game-screen" class="screen" style="display:none; z-index:5000; background:rgba(0,0,0,0.98);">
         <div id="game-inject" style="width:100%; height:100%;"></div>
     </div>
+
+    <div id="loading-screen">
+        <div class="loader-orb"></div>
+        <p style="color:var(--gold); margin-top:20px; letter-spacing:3px;">ALIGNEMENT DES ASTRES...</p>
+    </div>
 </div>
 
 <script>
-    // TES POINTS GPS SACRÉS (NE PAS TOUCHER)
     const QUEST_DATA = [
-        { lat: 47.25865295634987, lon: -0.07232092747517298, title: "Point 1" },
-        { lat: 47.25922301993599, lon: -0.07496422077580976, title: "Point 2" },
-        { lat: 47.25957512835827, lon: -0.07585838017127501, title: "Point 3" },
-        { lat: 47.25855640527987, lon: -0.07438732146623522, title: "Point 4" },
-        { lat: 47.25777300506129, lon: -0.07572423946778357, title: "Point 5" },
-        { lat: 47.257047880177915, lon: -0.07570440178130702, title: "Point 6" },
-        { lat: 47.2566497660443, lon: -0.0740386275036121, title: "Point 7" },
-        { lat: 47.253662326392785, lon: -0.07059828273820297, title: "Point 8" },
-        { lat: 47.25564998079592, lon: -0.068996433977779, title: "Point 9" }
+        { lat: 47.25865295634987, lon: -0.07232092747517298 },
+        { lat: 47.25922301993599, lon: -0.07496422077580976 },
+        { lat: 47.25957512835827, lon: -0.07585838017127501 },
+        { lat: 47.25855640527987, lon: -0.07438732146623522 },
+        { lat: 47.25777300506129, lon: -0.07572423946778357 },
+        { lat: 47.257047880177915, lon: -0.07570440178130702 },
+        { lat: 47.2566497660443, lon: -0.0740386275036121 },
+        { lat: 47.253662326392785, lon: -0.07059828273820297 },
+        { lat: 47.25564998079592, lon: -0.068996433977779 }
     ];
 
     let state = { step: 0, score: 0, boussoleEnergy: 100, name: "", isStarted: false };
     let deviceHeading = 0;
     let gameActive = false;
     let isCompassOpen = false;
+    let popupMutedAt = null; // Variable mémoire pour la fermeture popup
 
     window.onload = () => {
-        const saved = localStorage.getItem('saumur_interface_save');
-        if(saved) { state = JSON.parse(saved); if(state.isStarted) resumeGame(); }
+        const saved = localStorage.getItem('saumur_quest_v2_final');
+        if(saved) { 
+            state = JSON.parse(saved); 
+            if(state.isStarted) resumeGame(); 
+        }
     };
 
-    function save() { localStorage.setItem('saumur_interface_save', JSON.stringify(state)); }
+    function save() { localStorage.setItem('saumur_quest_v2_final', JSON.stringify(state)); }
 
     function requestPermissions() {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -193,7 +214,7 @@
         
         setInterval(() => {
             if(isCompassOpen && state.boussoleEnergy > 0) {
-                state.boussoleEnergy -= 1; 
+                state.boussoleEnergy -= 0.5; 
                 if(state.boussoleEnergy <= 0) { state.boussoleEnergy = 0; toggleCompass(); }
                 updateUI();
             }
@@ -206,20 +227,31 @@
         const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, target.lat, target.lon);
         
         const halo = document.getElementById('nav-halo');
+        const popup = document.getElementById('lune-popup');
         let color = "var(--red)";
+
         if (dist < 10) color = "var(--blue)";
         else if (dist < 30) color = "var(--green)";
         else if (dist < 70) color = "var(--orange)";
 
-        halo.style.borderWidth = dist < 70 ? "15px" : "4px";
         halo.style.borderColor = color;
-        document.getElementById('status-msg').innerText = Math.round(dist) + " METRES DU BUT";
+        document.getElementById('status-msg').innerText = Math.round(dist) + " MÈTRES";
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
 
-        // Détection Zone (Lune)
-        const popup = document.getElementById('lune-popup');
-        if (dist < 30 && popup.style.display !== 'flex') {
-            popup.style.display = 'flex';
+        // GESTION POPUP AVEC MÉMOIRE
+        if (dist < 30) {
+            // Si on est en zone et que ce n'est pas le point qu'on a "Mute"
+            if (popup.style.display !== 'flex' && popupMutedAt !== state.step) {
+                popup.style.display = 'flex';
+                document.getElementById('btn-next').style.display = (dist < 10) ? 'block' : 'none';
+                document.getElementById('lune-instruction').innerText = (dist < 10) ? 
+                    "Tu es au cœur de la zone. Recharge ou continue." : 
+                    "Zone proche. Relève le défi pour gagner de l'énergie.";
+            }
+        } else {
+            // Si on sort de la zone, on reset le "Mute" pour le prochain point
+            popup.style.display = 'none';
+            popupMutedAt = null;
         }
 
         const needle = document.getElementById('needle');
@@ -227,38 +259,62 @@
         needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
     }
 
-    function closeLunePopup() {
+    function dismissPopup() {
         document.getElementById('lune-popup').style.display = 'none';
-        state.boussoleEnergy = Math.min(100, state.boussoleEnergy + 15);
-        updateUI();
-        save();
+        popupMutedAt = state.step; // On ne réaffiche plus la popup pour CETTE étape
     }
 
     function openMiniGame() {
         document.getElementById('lune-popup').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'flex';
-        gameActive = true;
-        document.getElementById('game-inject').innerHTML = `
-            <div class="screen">
-                <h2 style="color:var(--gold)">Étape ${state.step + 1}</h2>
-                <p>Zone de test - Jeu à venir</p>
-                <button class="btn" onclick="finishStep(100)">Simuler Succès</button>
-            </div>`;
+        document.getElementById('loading-screen').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            gameActive = true;
+            document.getElementById('game-inject').innerHTML = `
+                <div class="screen">
+                    <h2 style="color:var(--gold)">DÉFI ${state.step + 1}</h2>
+                    <p style="text-align:center">Le contenu du jeu sera injecté ici.</p>
+                    <button class="btn" onclick="finishStep(100)">Gagner +100 Énergie</button>
+                </div>`;
+        }, 1500);
+    }
+
+    function skipToNext() {
+        document.getElementById('lune-popup').style.display = 'none';
+        state.step++;
+        popupMutedAt = null;
+        save();
+        updateUI();
+        triggerFlash("var(--blue)");
     }
 
     function finishStep(pts) {
-        document.getElementById('flash-effect').classList.add('active-flash');
         state.score += pts;
+        state.boussoleEnergy = Math.min(100, state.boussoleEnergy + 50);
         state.step++;
+        popupMutedAt = null;
         gameActive = false;
-        setTimeout(() => {
-            document.getElementById('game-screen').style.display = 'none';
-            document.getElementById('flash-effect').classList.remove('active-flash');
-            updateUI(); save();
-        }, 600);
+        document.getElementById('game-screen').style.display = 'none';
+        triggerFlash("white");
+        save();
+        updateUI();
+    }
+
+    function triggerFlash(color) {
+        const f = document.getElementById('flash-effect');
+        f.style.background = color;
+        f.classList.add('active-flash');
+        setTimeout(() => f.classList.remove('active-flash'), 600);
     }
 
     function toggleCompass() {
+        const btn = document.getElementById('compass-btn');
+        if(state.boussoleEnergy <= 0) {
+            btn.classList.add('compass-locked');
+            setTimeout(() => btn.classList.remove('compass-locked'), 500);
+            return;
+        }
         isCompassOpen = !isCompassOpen;
         document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
     }
@@ -275,6 +331,7 @@
         document.getElementById('d-energy').innerText = Math.round(state.boussoleEnergy);
         document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy);
         document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
+        if(state.boussoleEnergy <= 0) document.getElementById('compass-btn').style.borderColor = 'var(--red)';
     }
 
     function calculateDistance(la1, lo1, la2, lo2) {
@@ -285,8 +342,8 @@
     }
 
     function resetProgression() {
-        if(confirm("Recommencer l'aventure de zéro ?")) {
-            localStorage.removeItem('saumur_interface_save');
+        if(confirm("Recommencer tout le jeu ?")) {
+            localStorage.removeItem('saumur_quest_v2_final');
             location.reload();
         }
     }
