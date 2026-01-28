@@ -9,43 +9,23 @@
             --gold: #d4af37; --bg: #0a0a0a; --parchment: #fdfaf0;
             --green: #2ecc71; --orange: #e67e22; --red: #e74c3c; --blue: #3498db;
         }
-        
         body { background: #000; color: white; font-family: -apple-system, sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
-
-        #game-container {
-            width: 95%; max-width: 450px; height: 92vh;
-            background: var(--bg); border: 2px solid var(--gold);
-            border-radius: 25px; position: relative; overflow: hidden;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-
+        #game-container { width: 95%; max-width: 450px; height: 92vh; background: var(--bg); border: 2px solid var(--gold); border-radius: 25px; position: relative; overflow: hidden; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         #nav-halo { position: absolute; inset: 0; border: 4px solid transparent; transition: all 0.5s ease; pointer-events: none; z-index: 5; border-radius: 22px; }
-
-        /* UI HAUTE */
         .top-bar { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; gap: 10px; z-index: 2000; justify-content: flex-end; }
         .circle-btn { width: 45px; height: 45px; background: rgba(20,20,20,0.9); border: 1px solid var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; backdrop-filter: blur(5px); }
-        
         .menu-content { display: none; position: absolute; top: 60px; right: 0; background: rgba(10,10,10,0.98); border: 1px solid var(--gold); padding: 15px; border-radius: 15px; min-width: 180px; z-index: 2100; }
-
-        /* BOUSSOLE FULL SCREEN */
         #compass-menu { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1500; }
         #compass-disk { width: 260px; height: 260px; border: 10px double var(--gold); border-radius: 50%; position: relative; background: radial-gradient(circle, #1a1a1a 0%, #050505 100%); display: flex; align-items: center; justify-content: center; }
         #needle { width: 4px; height: 80%; background: linear-gradient(to bottom, #ff4500 50%, #fdfaf0 50%); position: absolute; border-radius: 2px; transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1); }
-
-        /* POPUP LUNE / ZONE */
         .lune-popup { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; }
         .lune-speech { background: var(--parchment); color: #2c3e50; padding: 20px; border-radius: 20px; margin-bottom: 25px; width: 85%; border: 3px solid var(--gold); }
-
-        /* BOUTONS ET ECRANS */
         .btn { background: var(--gold); color: black; border: none; padding: 12px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; }
         .btn-skip { background: var(--blue); color: white; margin-top: 10px; box-shadow: 0 0 15px rgba(52, 152, 219, 0.5); }
         .screen { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10; }
-        
-        /* TRANSITION CASCADE */
         #smiley-cascade { position: absolute; inset: 0; pointer-events: none; z-index: 7000; display: none; overflow: hidden; }
         .falling-smiley { position: absolute; font-size: 2.5rem; animation: fall linear forwards; }
         @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
-
         .flash-white { position: absolute; inset: 0; z-index: 4000; pointer-events: none; background: white; opacity: 0; }
         .active-flash { animation: flashAnim 0.6s ease-out; }
         @keyframes flashAnim { 0% { opacity: 1; } 100% { opacity: 0; } }
@@ -62,7 +42,6 @@
         <div id="compass-btn" class="circle-btn" onclick="toggleCompass()" style="display:none; border-color: var(--blue);">🧭</div>
         <div class="circle-btn" onclick="toggleMenu('dashboard')">👤</div>
         <div class="circle-btn" onclick="toggleMenu('options-menu')">⚙️</div>
-
         <div id="dashboard" class="menu-content">
             <div id="d-name" style="color:var(--gold); font-weight:bold;">---</div>
             <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
@@ -73,7 +52,6 @@
         <div id="options-menu" class="menu-content">
             <button class="btn" onclick="resetProgression()" style="width:100%; background:var(--red); color:white; font-size: 0.7rem;">Réinitialiser</button>
         </div>
-
         <div id="compass-menu">
             <div id="compass-disk"><div id="needle"></div></div>
             <div id="dist-val" style="font-size:2.5rem; color:var(--gold); margin-top:20px; font-weight:bold;">-- m</div>
@@ -113,7 +91,6 @@
 </div>
 
 <script>
-    // --- DONNÉES GPS ---
     const QUEST_DATA = [
         { lat: 47.25865295634987, lon: -0.07232092747517298 },
         { lat: 47.25922301993599, lon: -0.07496422077580976 },
@@ -127,10 +104,7 @@
     ];
 
     let state = { step: 0, score: 0, boussoleEnergy: 100, name: "", isStarted: false };
-    let deviceHeading = 0;
-    let gameActive = false;
-    let isCompassOpen = false;
-    let popupMutedAt = null;
+    let deviceHeading = 0; let gameActive = false; let isCompassOpen = false; let popupMutedAt = null;
 
     window.onload = () => {
         const saved = localStorage.getItem('saumur_quest_v2_final');
@@ -139,7 +113,6 @@
 
     function save() { localStorage.setItem('saumur_quest_v2_final', JSON.stringify(state)); }
 
-    // --- INITIALISATION ET GPS ---
     function requestPermissions() {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission().then(res => {
@@ -170,45 +143,32 @@
         if(gameActive) return;
         const target = QUEST_DATA[state.step];
         const dist = calculateDistance(pos.coords.latitude, pos.coords.longitude, target.lat, target.lon);
-        
         const halo = document.getElementById('nav-halo');
         const popup = document.getElementById('lune-popup');
         let color = "var(--red)";
-
         if (dist < 10) color = "var(--blue)";
         else if (dist < 30) color = "var(--green)";
         else if (dist < 70) color = "var(--orange)";
-
         halo.style.borderColor = color;
         document.getElementById('status-msg').innerText = Math.round(dist) + " MÈTRES";
         document.getElementById('dist-val').innerText = Math.round(dist) + " m";
-
         if (dist < 30) {
             if (popup.style.display !== 'flex' && popupMutedAt !== state.step) {
                 popup.style.display = 'flex';
                 document.getElementById('btn-next').style.display = (dist < 10) ? 'block' : 'none';
                 document.getElementById('lune-title').innerText = (dist < 10) ? "✨ ZONE BLEUE ✨" : "🌚 ZONE PROCHE";
-                document.getElementById('lune-instruction').innerText = (dist < 10) ? 
-                    "Félicitations ! Tu es sur le point GPS. Veux-tu recharger l'énergie ou passer au point suivant ?" : 
-                    "Tu y es presque. Rentre dans la zone bleue pour valider cette étape.";
+                document.getElementById('lune-instruction').innerText = (dist < 10) ? "GPS validé ! Recharge ton énergie ou passe à la suite." : "Rentre dans la zone bleue pour valider l'étape.";
             }
-        } else {
-            popup.style.display = 'none';
-            popupMutedAt = null;
-        }
-
+        } else { popup.style.display = 'none'; popupMutedAt = null; }
         const needle = document.getElementById('needle');
         const targetAngle = Math.atan2(target.lon - pos.coords.longitude, target.lat - pos.coords.latitude) * (180 / Math.PI);
         needle.style.transform = `rotate(${targetAngle - deviceHeading}deg)`;
     }
 
-    // --- SYSTÈME DE TRANSITION (CASCADE) ---
     function startTransition() {
         document.getElementById('lune-popup').style.display = 'none';
         const container = document.getElementById('smiley-cascade');
-        container.style.display = 'block';
-        container.innerHTML = '';
-        
+        container.style.display = 'block'; container.innerHTML = '';
         for(let i=0; i<45; i++) {
             setTimeout(() => {
                 const s = document.createElement('div');
@@ -219,17 +179,12 @@
                 container.appendChild(s);
             }, i * 40);
         }
-
         setTimeout(() => {
-            state.step++;
-            popupMutedAt = null;
-            container.style.display = 'none';
-            save(); updateUI();
-            triggerFlash("var(--blue)");
+            state.step++; popupMutedAt = null; container.style.display = 'none';
+            save(); updateUI(); triggerFlash("var(--blue)");
         }, 2800);
     }
 
-    // --- GESTIONNAIRE DES JEUX (TIROIRS) ---
     function openMiniGame() {
         document.getElementById('lune-popup').style.display = 'none';
         document.getElementById('loading-screen').style.display = 'flex';
@@ -256,81 +211,82 @@
         }
     }
 
-    // --- TIROIRS DE JEUX (À REMPLIR) ---
-
-    function game_Step0_Lunes(el) { // JEU 1 : Lunes AR
-        let score = 0; let items = []; let running = true;
-        el.innerHTML = `<div style="width:100%;height:100%;position:relative;"><video id="v0" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;"></video><canvas id="c0" style="position:absolute;inset:0;"></canvas><div style="position:absolute;top:20px;width:100%;text-align:center;color:gold;font-size:1.5rem;text-shadow:2px 2px 4px #000;">ÉNERGIE : <span id="s0">0</span>%</div></div>`;
+    // --- JEU 1 : LUNES AR ---
+    function game_Step0_Lunes(el) {
+        let score = 0; let items = []; let particles = []; let running = true;
+        el.innerHTML = `<div style="width:100%;height:100%;position:relative;background:#000;overflow:hidden;"><video id="v0" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;opacity:0.8;"></video><canvas id="c0" style="position:absolute;inset:0;z-index:10;"></canvas><div style="position:absolute;top:20px;width:100%;text-align:center;color:var(--gold);font-size:1.8rem;text-shadow:2px 2px 10px #000;z-index:20;font-weight:bold;">ÉNERGIE : <span id="s0">0</span>%</div></div>`;
         const v = document.getElementById('v0'); const c = document.getElementById('c0'); const ctx = c.getContext('2d');
         c.width = el.clientWidth; c.height = el.clientHeight;
         navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(s=>v.srcObject=s).catch(()=>{});
+
+        function createParticle(x, y, color) {
+            for(let i=0; i<8; i++) particles.push({x, y, vx:(Math.random()-0.5)*10, vy:(Math.random()-0.5)*10, life:1.0, color});
+        }
+
         function draw() {
             if(!running) return; ctx.clearRect(0,0,c.width,c.height);
-            if(Math.random()<0.04 && items.length<6) items.push({x:Math.random()*(c.width-60)+30,y:Math.random()*(c.height-150)+100,hit:false,o:1});
-            items.forEach((it,i)=>{
-                if(it.hit){ it.y-=20; it.o-=0.05; if(it.o<=0){ score+=10; document.getElementById('s0').innerText=score; items.splice(i,1); if(score>=100){running=false; if(v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop()); finishGameUI(100);}}}
-                ctx.globalAlpha=it.o; ctx.font="50px Arial"; ctx.fillText("🌙",it.x-25,it.y);
-            }); requestAnimationFrame(draw);
+            if(Math.random() < 0.05 && items.length < 10) {
+                const isMalus = Math.random() < 0.3;
+                items.push({x: Math.random()*(c.width-60)+30, y: c.height+50, type: isMalus?'🌚':'🌝', speed: Math.random()*1.5+0.5, hit: false, popText: null, o: 1});
+            }
+            particles.forEach((p, i) => {
+                p.x+=p.vx; p.y+=p.vy; p.life-=0.02; if(p.life<=0) particles.splice(i,1);
+                ctx.fillStyle=p.color; ctx.globalAlpha=p.life; ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill();
+            });
+            items.forEach((it, i) => {
+                it.y -= it.speed; it.x += Math.sin(it.y/30)*1.2;
+                if(it.hit) { it.o -= 0.1; if(it.o <= 0) items.splice(i,1); }
+                if(it.y < -50) items.splice(i,1);
+                ctx.globalAlpha = it.o; ctx.font = "50px Arial"; ctx.textAlign = "center"; ctx.fillText(it.type, it.x, it.y);
+                if(it.popText) { it.popText.y-=2; ctx.font="bold 25px sans-serif"; ctx.fillStyle=it.type==='🌚'?'#f44':'#fd0'; ctx.fillText(it.popText.txt, it.x, it.popText.y); }
+            });
+            requestAnimationFrame(draw);
         }
-        c.onclick=(e)=>{ const rect=c.getBoundingClientRect(); items.forEach(it=>{if(Math.hypot(e.clientX-rect.left-it.x, e.clientY-rect.top-it.y)<50) it.hit=true;}); };
+
+        const interact = (ex, ey) => {
+            const rect = c.getBoundingClientRect(); const mx = ex-rect.left; const my = ey-rect.top;
+            items.forEach(it => {
+                if(!it.hit && Math.hypot(mx-it.x, my-(it.y-20)) < 45) {
+                    it.hit = true;
+                    if(it.type==='🌝') { score=Math.min(100, score+10); it.popText={txt:"+10", y:it.y}; createParticle(it.x,it.y,"gold"); }
+                    else { score=Math.max(0, score-5); it.popText={txt:"-5", y:it.y}; createParticle(it.x,it.y,"red"); }
+                    document.getElementById('s0').innerText = score;
+                    if(score >= 100) { setTimeout(() => { running=false; if(v.srcObject) v.srcObject.getTracks().forEach(t=>t.stop()); finishGameUI(100); }, 500); }
+                }
+            });
+        };
+        c.onclick = (e) => interact(e.clientX, e.clientY);
+        c.ontouchstart = (e) => { e.preventDefault(); interact(e.touches[0].clientX, e.touches[0].clientY); };
         draw();
     }
 
-    function game_Step1_Pipes(el) { el.innerHTML = `<div class="screen"><h2>POINT 2 : TUYAUX</h2><p>Mets ton code ici...</p><button class="btn" onclick="finishGameUI(100)">SIMULER RÉUSSITE</button></div>`; }
+    function game_Step1_Pipes(el) { el.innerHTML = `<div class="screen"><h2>POINT 2 : TUYAUX</h2><button class="btn" onclick="finishGameUI(100)">SIMULER</button></div>`; }
     function game_Step2_Memory(el) { el.innerHTML = `<div class="screen"><h2>POINT 3 : MÉMOIRE</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
     function game_Step3_AR(el) { el.innerHTML = `<div class="screen"><h2>POINT 4 : CHASSE AR</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
     function game_Step4_Quiz(el) { el.innerHTML = `<div class="screen"><h2>POINT 5 : QUIZ</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
     function game_Step5_Riddle(el) { el.innerHTML = `<div class="screen"><h2>POINT 6 : ÉNIGME</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
     function game_Step6_Simon(el) { el.innerHTML = `<div class="screen"><h2>POINT 7 : SIMON</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
     function game_Step7_Lock(el) { el.innerHTML = `<div class="screen"><h2>POINT 8 : CADENAS</h2><button class="btn" onclick="finishGameUI(100)">RÉUSSIR</button></div>`; }
-    function game_Step8_Boss(el) { el.innerHTML = `<div class="screen"><h2>FINAL : LE GARDIEN</h2><button class="btn" onclick="finishGameUI(500)">TERMINER L'AVENTURE</button></div>`; }
+    function game_Step8_Boss(el) { el.innerHTML = `<div class="screen"><h2>FINAL : BOSS</h2><button class="btn" onclick="finishGameUI(500)">FIN</button></div>`; }
 
-    // --- FIN DE JEU ET CHOIX ---
     function finishGameUI(pts) {
         state.score += pts; state.boussoleEnergy = 100; save(); updateUI();
-        document.getElementById('game-inject').innerHTML = `
-            <div class="screen" style="background:rgba(0,0,0,0.95); text-align:center;">
-                <h1 style="font-size:4rem; margin:0;">🔋</h1>
-                <h2 style="color:var(--gold);">ÉNERGIE RESTAURÉE</h2>
-                <p>Bravo ${state.name} ! Énergie à 100%.</p>
-                <div style="display:flex; flex-direction:column; gap:15px; width:85%; margin-top:20px;">
-                    <button class="btn" onclick="openMiniGame()">REJOUER CE DÉFI</button>
-                    <button class="btn" style="background:var(--blue); color:white;" onclick="closeGameAndCheckZone()">CONTINUER VERS LA ZONE BLEUE</button>
-                </div>
-            </div>`;
+        document.getElementById('game-inject').innerHTML = `<div class="screen" style="background:rgba(0,0,0,0.9); text-align:center;"><h1 style="font-size:4rem; margin:0;">🔋</h1><h2 style="color:var(--gold);">ÉNERGIE RESTAURÉE</h2><div style="display:flex; flex-direction:column; gap:15px; width:85%; margin-top:20px;"><button class="btn" onclick="openMiniGame()">REJOUER</button><button class="btn" style="background:var(--blue); color:white;" onclick="closeGameAndCheckZone()">CONTINUER</button></div></div>`;
     }
-
-    function closeGameAndCheckZone() {
-        gameActive = false; document.getElementById('game-screen').style.display = 'none';
-        triggerFlash("white");
-    }
-
-    // --- UTILITAIRES ---
+    function closeGameAndCheckZone() { gameActive = false; document.getElementById('game-screen').style.display = 'none'; triggerFlash("white"); }
     function dismissPopup() { document.getElementById('lune-popup').style.display = 'none'; popupMutedAt = state.step; }
     function triggerFlash(color) { const f = document.getElementById('flash-effect'); f.style.background = color; f.classList.add('active-flash'); setTimeout(() => f.classList.remove('active-flash'), 600); }
-    function toggleCompass() {
-        const btn = document.getElementById('compass-btn');
-        if(state.boussoleEnergy <= 0) { btn.classList.add('compass-locked'); setTimeout(() => btn.classList.remove('compass-locked'), 500); return; }
-        isCompassOpen = !isCompassOpen; document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none';
-    }
-    function toggleMenu(id) {
-        const m = document.getElementById(id); const isOpen = m.style.display === 'block';
-        document.querySelectorAll('.menu-content').forEach(el => el.style.display = 'none');
-        m.style.display = isOpen ? 'none' : 'block';
-    }
+    function toggleCompass() { if(state.boussoleEnergy <= 0) return; isCompassOpen = !isCompassOpen; document.getElementById('compass-menu').style.display = isCompassOpen ? 'flex' : 'none'; }
+    function toggleMenu(id) { const m = document.getElementById(id); const isOpen = m.style.display === 'block'; document.querySelectorAll('.menu-content').forEach(el => el.style.display = 'none'); m.style.display = isOpen ? 'none' : 'block'; }
     function updateUI() {
-        document.getElementById('d-score').innerText = state.score;
-        document.getElementById('d-energy').innerText = Math.round(state.boussoleEnergy);
-        document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy);
-        document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
-        document.getElementById('compass-btn').style.borderColor = (state.boussoleEnergy <= 0) ? 'var(--red)' : 'var(--blue)';
+        document.getElementById('d-score').innerText = state.score; document.getElementById('d-energy').innerText = Math.round(state.boussoleEnergy);
+        document.getElementById('energy-val').innerText = Math.round(state.boussoleEnergy); document.getElementById('d-step').innerText = (state.step + 1) + " / 9";
     }
     function calculateDistance(la1, lo1, la2, lo2) {
-        const R = 6371000; const dLat = (la2-la1)*Math.PI/180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(((lo2-lo1)*Math.PI/180)/2)**2;
+        const R = 6371000; const dLat = (la2-la1)*Math.PI/180; const a = Math.sin(dLat/2)**2 + Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(((lo2-lo1)*Math.PI/180)/2)**2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
-    function resetProgression() { if(confirm("Recommencer tout ?")) { localStorage.removeItem('saumur_quest_v2_final'); location.reload(); } }
+    function resetProgression() { if(confirm("Reset ?")) { localStorage.removeItem('saumur_quest_v2_final'); location.reload(); } }
 </script>
 </body>
 </html>
